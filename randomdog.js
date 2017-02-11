@@ -42,7 +42,11 @@ const server = http.createServer((req, res) => {
 	} else if (action != '/') {
 		try {
 			var img = fs.readFileSync('img' + action);
-			res.writeHead(200, {'Content-Type': 'image/jpg' });
+			if (action.endsWith(".mp4")) {
+				res.writeHead(200, { 'Content-Type': 'video/mp4' });
+			} else {
+				res.writeHead(200, {'Content-Type': 'image/jpg' });
+			}
 			res.end(img, 'binary');
 		} catch(err) {
 			res.writeHead(200, {'Content-Type': 'text/plain' });
@@ -59,7 +63,11 @@ const server = http.createServer((req, res) => {
 		console.log('randNum: ' + randNum);
 		console.log('fileName: ' + fileName);
 
-		res.end('<html><p>Hello World, This Is Dog</p><p><img src=\'' + fileName + '\'></img></p><footer>@AdenFlorian</footer>');
+		if (fileName.endsWith(".mp4")) {
+			res.end(`<html><p>Hello World, This Is Dog</p><p><video autoplay><source src='${fileName}' type='video/mp4'>Your browser does not support the video tag.</video></p><footer>@AdenFlorian</footer>`);
+		} else {
+			res.end(`<html><p>Hello World, This Is Dog</p><p><img src='${fileName}'></img></p><footer>@AdenFlorian</footer>`);
+		}
 	}
 });
 
