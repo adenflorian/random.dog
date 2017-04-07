@@ -3,7 +3,7 @@ const fs = require('fs');
 const url = require('url');
 
 const hostname = 'random.dog';
-const port = 80;
+const port = 8080;
 
 const server = http.createServer((req, res) => {
 	var request = url.parse(req.url, true);
@@ -64,7 +64,7 @@ const server = http.createServer((req, res) => {
 		console.log('fileName: ' + fileName);
 
 		if (fileName.endsWith(".mp4")) {
-			res.end(`<html><p>Hello World, This Is Dog</p><p><video autoplay><source src='${fileName}' type='video/mp4'>Your browser does not support the video tag.</video></p><footer>@AdenFlorian</footer>`);
+			res.end(`<html><p>Hello World, This Is Dog</p><p><video preload="auto" autoplay="autoplay" muted="muted" loop="loop" webkit-playsinline=""><source src='${fileName}' type='video/mp4'>Your browser does not support the video tag.</video></p><footer>@AdenFlorian</footer>`);
 		} else {
 			res.end(`<html><p>Hello World, This Is Dog</p><p><img src='${fileName}'></img></p><footer>@AdenFlorian</footer>`);
 		}
