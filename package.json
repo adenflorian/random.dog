@@ -2,7 +2,7 @@
   "name": "random.dog",
   "version": "1.0.0",
   "description": "The nodejs code behind http://random.dog",
-  "main": "dog.js",
+  "main": "randomdog.js",
   "dependencies": {
     "express": "^4.14.0",
     "handlebars": "^4.0.5"
@@ -20,7 +20,7 @@
     "random",
     "dog"
   ],
-  "author": "AdenFlorian",
+  "author": "David 'AdenFlorian' Valachovic",
   "bugs": {
     "url": "https://github.com/AdenFlorian/random.dog/issues"
   },
