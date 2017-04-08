@@ -1,0 +1,28 @@
+{
+  "name": "random.dog",
+  "version": "1.0.0",
+  "description": "The nodejs code behind http://random.dog",
+  "main": "dog.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "handlebars": "^4.0.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdenFlorian/random.dog.git"
+  },
+  "keywords": [
+    "api",
+    "random",
+    "dog"
+  ],
+  "author": "AdenFlorian",
+  "bugs": {
+    "url": "https://github.com/AdenFlorian/random.dog/issues"
+  },
+  "homepage": "https://github.com/AdenFlorian/random.dog#readme"
+}
