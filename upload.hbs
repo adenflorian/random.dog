@@ -1,0 +1,47 @@
+<html>
+    <p><input name="dog" type="file" id="doginput" /></p><p>
+    <button id="dogsubmit">Immortalize Doggo</button></p><p>
+    <p>All doggos subject to hooman inspection</p>
+    <p id="result"></p>
+
+    <script>
+        function uploadFile(file)
+        {
+            var url = 'upload';
+            var xhr = new XMLHttpRequest();
+            var fd = new FormData();
+            xhr.open('POST', url, true);
+            xhr.onreadystatechange = function()
+            {
+                console.log(xhr.responseText);
+                updateResultTest(xhr.responseText);
+            }
+            fd.append('upload_file', file);
+            console.log("about to send");
+            xhr.send(fd);
+        }
+
+        function updateResultTest(newText)
+        {
+            document.getElementById('result').innerText = newText;
+        }
+
+        document.getElementById('dogsubmit').addEventListener('click', function() {
+            var file = document.getElementById('doginput').files[0];
+
+            if (file.size > 50 * 1024 * 1024) {
+                updateResultTest("Doggo too big, only doggos under 50MB allowed");
+                return;
+            }
+
+            var acceptedTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4'];
+
+            if (acceptedTypes.indexOf(file.type) == -1) {
+                updateResultTest('Only png, jpeg, gif, and mp4 doggos allowed');
+                return;
+            }
+
+            uploadFile(file);
+        }, false);
+    </script>
+</html>

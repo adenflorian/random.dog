@@ -1,9 +1,12 @@
-const express = require("express")
-const hbs = require("handlebars")
-const fs = require("fs")
+const express = require('express')
+const fileUpload = require('express-fileupload')
+const fs = require('fs-extra')
+const hbs = require('handlebars')
+const path = require('path')
+const uuidV4 = require('uuid/v4')
 
 // Should be run behind a reverse proxy
-const domain = "random.dog"
+const domain = 'random.dog'
 const privatePort = 8080
 const host = `https://random.dog`
 
@@ -11,16 +14,30 @@ Array.prototype.random = function() {
     return this[Math.floor(Math.random() * this.length)]
 }
 
+fs.ensureDirSync('./newdoggos')
+fs.ensureDirSync('./img')
+
 var app = express()
 
-app.use(function(req, res, next) {
+app.use(fileUpload({
+	limits: {
+		fileSize: 50 * 1024 * 1024,
+		fields: 100,
+		files: 1,
+		parts: 101
+	},
+}));
+
+app.use(function (req, res, next) {
 	console.log('NEW REQUEST: ' + getDateTime() + ' EST - NYC')
 	console.log('requestor IP: ' + req.connection.remoteAddress)
 	console.log('action: ' + req.url)
+	console.log('method: ' + req.method)
 	next()
 })
 
 var helloworld = hbs.compile(fs.readFileSync("./helloworld.hbs", "utf8"))
+var upload = hbs.compile(fs.readFileSync("./upload.hbs", "utf8"))
 
 var cache = fs.readdirSync("./img")
 
@@ -37,6 +54,7 @@ app.get("/woof.json", (req, res) => {
 		url: `${host}/${cache.random()}`
 	})
 })
+
 app.get("/woof", (req, res) => {
 	res.status(200).send(cache.random())
 })
@@ -44,7 +62,33 @@ app.get("/woof", (req, res) => {
 app.get("/", (req, res) => {
 	res.status(200).send(helloworld({dog: `/${cache.random()}`}))
 })
+
 app.get("*", express.static("./img"))
+
+app.get('/upload', (req, res) => {
+	res.status(200).send(upload())
+})
+
+app.post('/upload', (req, res) => {
+	if (!req.files) return res.status(400).send('No files were uploaded.')
+
+	// Limit number of files in newdoggos folder to 50
+	if (fs.readdirSync('newdoggos').length >= 50) {
+		return res.status(200).send('Too many new doggos awaiting adoption, please try again later')
+	}
+
+	var uploadedFile = req.files.upload_file
+
+	var acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4']
+
+	if (acceptedMimeTypes.indexOf(uploadedFile.mimetype) == -1) {
+		return res.status(400).send('Only png, jpeg, gif, and mp4 doggos allowed')
+	}
+
+	uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
+
+	return res.status(200).send('Doggo adopted!')
+})
 
 app.listen(privatePort, (err) => {
 	if (err) return console.error(err.stack)

@@ -5,7 +5,10 @@
   "main": "randomdog.js",
   "dependencies": {
     "express": "^4.14.0",
-    "handlebars": "^4.0.5"
+    "express-fileupload": "^0.1.2",
+    "fs-extra": "^2.1.2",
+    "handlebars": "^4.0.5",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {},
   "scripts": {
