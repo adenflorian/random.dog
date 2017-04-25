@@ -82,7 +82,8 @@ app.get("*", express.static("./img"))
 app.get('/upload', (req, res) => {
 	fs.readdir('./newdoggos/', (err, files) => {
 		res.status(200).send(upload({
-			dog: files
+			dog: files,
+			waitingdogs: files.length
 		}))
 	})
 })

@@ -12,4 +12,5 @@ TODO
 [√] put a dog counter
 [√] fix video dogs
 [√] make sure gif dogs work
+[√] refresh page after uploading doggo
 [ ] create facebook page and link (subtly) on main page

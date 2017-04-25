@@ -21,7 +21,7 @@
     <p>All doggos subject to hooman inspection</p>
     <p id="result"></p>
 
-    <h3>Puppers awaiting adoption:</h3>
+    <h3>{{waitingdogs}} puppers awaiting adoption:</h3>
     <div class="dog-list">
         {{#each dog}}
             <p>{{this}}</p>
@@ -37,6 +37,7 @@
             xhr.onreadystatechange = function () {
                 console.log(xhr.responseText);
                 updateResultTest(xhr.responseText);
+                setTimeout(function () { location.reload() }, 2000);
             }
             fd.append('upload_file', file);
             console.log("about to send");
