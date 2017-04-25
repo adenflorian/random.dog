@@ -17,6 +17,15 @@ Array.prototype.random = function() {
 fs.ensureDirSync('./newdoggos')
 fs.ensureDirSync('./img')
 
+var immortalDoggos = 0;
+fs.readdir('./img', (err, files) => {
+	if (err) {
+		console.log(err)
+		return;
+	}
+	immortalDoggos = files.length
+})
+
 var app = express()
 
 app.use(fileUpload({
@@ -60,7 +69,7 @@ app.get("/woof", (req, res) => {
 })
 
 app.get("/", (req, res) => {
-	res.status(200).send(helloworld({dog: `/${cache.random()}`}))
+	res.status(200).send(helloworld({ dog: `/${cache.random()}`, adopted: immortalDoggos }))
 })
 
 app.get("*", express.static("./img"))
@@ -90,6 +99,8 @@ app.post('/upload', (req, res) => {
 	}
 
 	uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
+
+	immortalDoggos++;
 
 	return res.status(200).send('Doggo adopted!')
 })
