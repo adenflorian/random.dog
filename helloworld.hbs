@@ -42,7 +42,14 @@
 <body>
     <div id="main-div">
         <h3>Hello World, This Is Dog</h3>
-        <img id="dog-img" src="{{dog}}" />
+        {{#if dogimg}}
+            <img id="dog-img" src="{{dogimg}}" />
+        {{/if}}
+        {{#if dogmp4}}
+            <video id="dog-img" autoplay loop muted>
+                <source src="{{dogmp4}}" type="video/mp4">
+            </video>
+        {{/if}}
         <footer>
             <p>~{{adopted}} immortal puppers</p>
             <p><a href="/upload">/upload</a> | <a href="/woof">/woof</a> | <a href="/woof.json">/woof.json</a></p>

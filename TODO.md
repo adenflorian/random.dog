@@ -10,5 +10,6 @@ TODO
 [√] center dog on page
 [√] show dogs awaiting adoption on upload page
 [√] put a dog counter
-[ ] fix video dogs
+[√] fix video dogs
+[√] make sure gif dogs work
 [ ] create facebook page and link (subtly) on main page

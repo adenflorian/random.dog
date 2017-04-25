@@ -69,7 +69,12 @@ app.get("/woof", (req, res) => {
 })
 
 app.get("/", (req, res) => {
-	res.status(200).send(helloworld({ dog: `/${cache.random()}`, adopted: immortalDoggos }))
+	var doggo = cache.random()
+	if (path.extname(doggo) == '.mp4') {
+		res.status(200).send(helloworld({ dogmp4: doggo, adopted: immortalDoggos }))
+	} else {
+		res.status(200).send(helloworld({ dogimg: doggo, adopted: immortalDoggos }))
+	}
 })
 
 app.get("*", express.static("./img"))
