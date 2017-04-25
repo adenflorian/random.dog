@@ -66,7 +66,11 @@ app.get("/", (req, res) => {
 app.get("*", express.static("./img"))
 
 app.get('/upload', (req, res) => {
-	res.status(200).send(upload())
+	fs.readdir('./newdoggos/', (err, files) => {
+		res.status(200).send(upload({
+			dog: files
+		}))
+	})
 })
 
 app.post('/upload', (req, res) => {

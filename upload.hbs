@@ -8,6 +8,10 @@
             text-align: center;
             padding: 100px;
         }
+        .dog-list p {
+            font-family: "Courier New", Courier, monospace;
+            margin: 2px;
+        }
     </style>
 </head>
 
@@ -16,6 +20,13 @@
     <p><button id="dogsubmit">Immortalize Doggo</button></p>
     <p>All doggos subject to hooman inspection</p>
     <p id="result"></p>
+
+    <h3>Puppers awaiting adoption:</h3>
+    <div class="dog-list">
+        {{#each dog}}
+            <p>{{this}}</p>
+        {{/each}}
+    </div>
 
     <script>
         function uploadFile(file) {
