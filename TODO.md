@@ -9,6 +9,6 @@ TODO
 [√] put info about api on main page
 [√] center dog on page
 [√] show dogs awaiting adoption on upload page
+[√] put a dog counter
 [ ] fix video dogs
-[ ] put a dog counter
 [ ] create facebook page and link (subtly) on main page
