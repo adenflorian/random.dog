@@ -1,5 +1,45 @@
 <html>
-    <p>Hello World, This Is Dog</p>
-    <p><img src="{{dog}}"/></p>
-    <footer>@AdenFlorian</footer>
+
+<head>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 1em;
+        }
+        
+        #main-div {
+            text-align: center;
+            height: 100%;
+        }
+        
+        #dog-img {
+            max-width: 80%;
+            max-height: 80%;
+            box-shadow: 1px 1px 0 0 #ffffff inset, 0 2px 3px 0 #B3B3B3;
+        }
+        
+        footer {
+            padding: 10px;
+        }
+        
+        footer a {
+            color: #aaa;
+            font-size: 0.8em;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            color: #779;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main-div">
+        <h3>Hello World, This Is Dog</h3>
+        <img id="dog-img" src="{{dog}}" />
+        <footer><a href="https://twitter.com/AdenFlorian">@AdenFlorian</a></footer>
+    </div>
+</body>
+
 </html>

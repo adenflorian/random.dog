@@ -1,18 +1,29 @@
 <html>
-    <p><input name="dog" type="file" id="doginput" /></p><p>
-    <button id="dogsubmit">Immortalize Doggo</button></p><p>
+
+<head>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 1em;
+            text-align: center;
+            padding: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <p><input name="dog" type="file" id="doginput" /></p>
+    <p><button id="dogsubmit">Immortalize Doggo</button></p>
     <p>All doggos subject to hooman inspection</p>
     <p id="result"></p>
 
     <script>
-        function uploadFile(file)
-        {
+        function uploadFile(file) {
             var url = 'upload';
             var xhr = new XMLHttpRequest();
             var fd = new FormData();
             xhr.open('POST', url, true);
-            xhr.onreadystatechange = function()
-            {
+            xhr.onreadystatechange = function () {
                 console.log(xhr.responseText);
                 updateResultTest(xhr.responseText);
             }
@@ -21,12 +32,11 @@
             xhr.send(fd);
         }
 
-        function updateResultTest(newText)
-        {
+        function updateResultTest(newText) {
             document.getElementById('result').innerText = newText;
         }
 
-        document.getElementById('dogsubmit').addEventListener('click', function() {
+        document.getElementById('dogsubmit').addEventListener('click', function () {
             var file = document.getElementById('doginput').files[0];
 
             if (file.size > 50 * 1024 * 1024) {
@@ -44,4 +54,6 @@
             uploadFile(file);
         }, false);
     </script>
+</body>
+
 </html>
