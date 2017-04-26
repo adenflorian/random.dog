@@ -89,12 +89,10 @@ app.get("/", (req, res) => {
 	}
 })
 
-app.get("*", (req, res) => {
+app.get("*", (req, res, next) => {
 	req.visitor.pageview("*").send()
-	express.static("./img")(req, res)
+	express.static("./img")(req, res, next)
 })
-
-app.get("*", express.static("./img"))
 
 app.get('/upload', (req, res) => {
 	req.visitor.pageview(req.path).send()
