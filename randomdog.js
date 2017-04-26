@@ -3,6 +3,7 @@ const fileUpload = require('express-fileupload')
 const fs = require('fs-extra')
 const hbs = require('handlebars')
 const path = require('path')
+const ua = require('universal-analytics')
 const uuidV4 = require('uuid/v4')
 
 // Should be run behind a reverse proxy
@@ -18,15 +19,22 @@ fs.ensureDirSync('./newdoggos')
 fs.ensureDirSync('./img')
 
 var immortalDoggos = 0;
-fs.readdir('./img', (err, files) => {
-	if (err) {
-		console.log(err)
-		return;
-	}
-	immortalDoggos = files.length
-})
+
+function updateDoggoCount() {
+	fs.readdir('./img', (err, files) => {
+		if (err) {
+			console.log(err)
+			return;
+		}
+		immortalDoggos = files.length
+	})
+}
+
+updateDoggoCount()
 
 var app = express()
+
+app.use(ua.middleware('UA-50585312-4', { cookieName: '_ga', https: true }));
 
 app.use(fileUpload({
 	limits: {
@@ -35,7 +43,7 @@ app.use(fileUpload({
 		files: 1,
 		parts: 101
 	},
-}));
+}))
 
 app.use(function (req, res, next) {
 	console.log('NEW REQUEST: ' + getDateTime() + ' EST - NYC')
@@ -55,20 +63,24 @@ var refresher = setInterval(() => {
 		if (err) return console.error(err.stack)
 		cache = files
 	})
+	updateDoggoCount()
 }, 20000)
 
 // API
 app.get("/woof.json", (req, res) => {
+	req.visitor.pageview(req.path).send()
 	res.status(200).json({
 		url: `${host}/${cache.random()}`
 	})
 })
 
 app.get("/woof", (req, res) => {
+	req.visitor.pageview(req.path).send()
 	res.status(200).send(cache.random())
 })
 
 app.get("/", (req, res) => {
+	req.visitor.pageview(req.path).send()
 	var doggo = cache.random()
 	if (path.extname(doggo) == '.mp4') {
 		res.status(200).send(helloworld({ dogmp4: doggo, adopted: immortalDoggos }))
@@ -77,9 +89,15 @@ app.get("/", (req, res) => {
 	}
 })
 
+app.get("*", (req, res) => {
+	req.visitor.pageview("*").send()
+	express.static("./img")(req, res)
+})
+
 app.get("*", express.static("./img"))
 
 app.get('/upload', (req, res) => {
+	req.visitor.pageview(req.path).send()
 	fs.readdir('./newdoggos/', (err, files) => {
 		res.status(200).send(upload({
 			dog: files,
@@ -89,6 +107,7 @@ app.get('/upload', (req, res) => {
 })
 
 app.post('/upload', (req, res) => {
+	req.visitor.pageview('POST ' + req.path).send()
 	if (!req.files) return res.status(400).send('No files were uploaded.')
 
 	// Limit number of files in newdoggos folder to 50
@@ -105,8 +124,6 @@ app.post('/upload', (req, res) => {
 	}
 
 	uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
-
-	immortalDoggos++;
 
 	return res.status(200).send('Doggo adopted!')
 })

@@ -13,4 +13,17 @@ TODO
 [√] fix video dogs
 [√] make sure gif dogs work
 [√] refresh page after uploading doggo
+[√] server side analytics
 [ ] create facebook page and link (subtly) on main page
+[ ] add new dog button
+[ ] add favicon
+[ ] make sure caching is working
+[ ] dog shelter ads
+[ ] use google vision api to approve dog uploads
+[ ] put box with copy link to copy link to current dog
+
+Proposed
+--------
+
+- voting buttons
+- comments

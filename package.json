@@ -8,6 +8,7 @@
     "express-fileupload": "^0.1.2",
     "fs-extra": "^2.1.2",
     "handlebars": "^4.0.5",
+    "universal-analytics": "^0.4.13",
     "uuid": "^3.0.1"
   },
   "devDependencies": {},
