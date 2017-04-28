@@ -94,6 +94,11 @@ app.get("*", (req, res, next) => {
 	express.static("./img")(req, res, next)
 })
 
+app.get("/favicon.*", (req, res, next) => {
+	req.visitor.pageview("/favicon.*").send()
+	express.static(".")(req, res, next)
+})
+
 app.get('/upload', (req, res) => {
 	req.visitor.pageview(req.path).send()
 	fs.readdir('./newdoggos/', (err, files) => {
