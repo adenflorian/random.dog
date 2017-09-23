@@ -14,6 +14,7 @@ TODO
 [√] make sure gif dogs work
 [√] refresh page after uploading doggo
 [√] server side analytics
+[√] create review page for approving doggos
 [ ] create script to deploy to prod
 [ ] create facebook page and link (subtly) on main page
 [ ] add new dog button
@@ -22,7 +23,7 @@ TODO
 [ ] dog shelter ads
 [ ] use google vision api to approve dog uploads
 [ ] put box with copy link to copy link to current dog
-[ ] mae a reddit bot that automatically uploads dogs
+[ ] make a reddit bot that automatically uploads dogs
 
 Proposed
 --------

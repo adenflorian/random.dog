@@ -1,0 +1,4 @@
+apps:
+  - script: randomdog.js
+    env:
+      NODE_ENV: production

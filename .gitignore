@@ -2,8 +2,8 @@ newdoggos
 *.sh
 *.bat
 img
-
-
+secret.json
+rejects
 
 # Created by https://www.gitignore.io/api/node
 

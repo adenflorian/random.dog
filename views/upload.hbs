@@ -8,6 +8,7 @@
             text-align: center;
             padding: 100px;
         }
+
         .dog-list p {
             font-family: "Courier New", Courier, monospace;
             margin: 2px;
@@ -24,7 +25,7 @@
     <h3>{{waitingdogs}} puppers awaiting adoption:</h3>
     <div class="dog-list">
         {{#each dog}}
-            <p>{{this}}</p>
+        <p>{{this}}</p>
         {{/each}}
     </div>
 
@@ -37,7 +38,7 @@
             xhr.onreadystatechange = function () {
                 console.log(xhr.responseText);
                 updateResultTest(xhr.responseText);
-                setTimeout(function () { location.reload() }, 2000);
+                setTimeout(function () {location.reload()}, 2000);
             }
             fd.append('upload_file', file);
             console.log("about to send");

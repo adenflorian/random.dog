@@ -3,17 +3,24 @@
   "version": "1.0.0",
   "description": "The nodejs code behind http://random.dog",
   "main": "randomdog.js",
-  "dependencies": {
-    "express": "^4.14.0",
-    "express-fileupload": "^0.1.2",
-    "fs-extra": "^2.1.2",
-    "handlebars": "^4.0.5",
-    "universal-analytics": "^0.4.13",
-    "uuid": "^3.0.1"
-  },
-  "devDependencies": {},
   "scripts": {
+    "start": "nodemon -e js,hbs randomdog.js",
+    "prodstart": "pm2 start process.yml",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.2",
+    "express": "^4.15.4",
+    "express-fileupload": "^0.1.4",
+    "fs-extra": "^4.0.2",
+    "handlebars": "^4.0.10",
+    "passport": "^0.4.0",
+    "universal-analytics": "^0.4.15",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
   },
   "repository": {
     "type": "git",
