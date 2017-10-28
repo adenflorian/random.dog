@@ -8,9 +8,9 @@ const ua = require('universal-analytics')
 const uuidV4 = require('uuid/v4')
 const bcrypt = require('bcrypt')
 
-console.log('*****************************');
-console.log('process.env.NODE_ENV:', process.env.NODE_ENV);
-console.log('*****************************');
+console.log('*****************************')
+console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
+console.log('*****************************')
 
 // Should be run behind a reverse proxy
 const domain = 'random.dog'
@@ -21,15 +21,15 @@ Array.prototype.random = function () {
 	return this[Math.floor(Math.random() * this.length)]
 }
 
-const newDogFolderName = 'newdoggos';
-const approvedDogFolderName = 'img';
-const rejectDogFolderName = 'rejects';
+const newDogFolderName = 'newdoggos'
+const approvedDogFolderName = 'img'
+const rejectDogFolderName = 'rejects'
 
 fs.ensureDirSync('./' + newDogFolderName)
 fs.ensureDirSync('./' + approvedDogFolderName)
 fs.ensureDirSync('./' + rejectDogFolderName)
 
-var immortalDoggos = 0;
+var immortalDoggos = 0
 
 function checkHash(password) {
 	return bcrypt.compareSync(password, secret)
@@ -39,7 +39,7 @@ function updateDoggoCount() {
 	fs.readdir('./' + approvedDogFolderName, (err, files) => {
 		if (err) {
 			console.log(err)
-			return;
+			return
 		}
 		immortalDoggos = files.length
 	})
@@ -50,7 +50,7 @@ updateDoggoCount()
 const app = express()
 const jsonParser = bodyParser.json()
 
-app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}));
+app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}))
 
 app.use(fileUpload({
 	limits: {
@@ -66,10 +66,6 @@ app.use((req, res, next) => {
 	console.log(`requestor ip: ${req.connection.remoteAddress}`)
 	console.log(`${req.method} ${req.url}`)
 	next()
-})
-
-app.use((err, req, res, next) => {
-	// logic
 })
 
 var helloworld = hbs.compile(fs.readFileSync('./views/helloworld.hbs', 'utf8'))
@@ -90,7 +86,6 @@ function updateCache() {
 	updateDoggoCount()
 }
 
-// API
 app.get('/woof.json', (req, res) => {
 	req.visitor.pageview(req.path).send()
 	res.status(200).json({
@@ -111,6 +106,17 @@ app.get('/', (req, res) => {
 	} else {
 		res.status(200).send(helloworld({dogimg: doggo, adopted: immortalDoggos}))
 	}
+})
+
+app.get('/doggos', (req, res) => {
+	req.visitor.pageview(req.path).send()
+	fs.readdir('./' + approvedDogFolderName, (err, files) => {
+		if (err) {
+			res.status(500).send()
+		} else {
+			res.status(200).json(files)
+		}
+	})
 })
 
 app.get('*', (req, res, next) => {
@@ -141,8 +147,8 @@ app.post('/upload', (req, res) => {
 	req.visitor.pageview('POST ' + req.path).send()
 	if (!req.files) return res.status(400).send('No files were uploaded.')
 
-	// Limit number of files in newdoggos folder to 50
-	if (fs.readdirSync('newdoggos').length >= 50) {
+	// Limit number of files in newdoggos folder to 250
+	if (fs.readdirSync('newdoggos').length >= 250) {
 		return res.status(200).send('Too many new doggos awaiting adoption, please try again later')
 	}
 
@@ -183,12 +189,12 @@ app.post('/review', jsonParser, (req, res) => {
 	req.visitor.pageview(req.path).send()
 	if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
 	if (!req.body) return res.sendStatus(400)
-	const dogName = req.body.dogName;
+	const dogName = req.body.dogName
 	if (req.body.action === 'reject') {
 		if (!dogName || dogName.length < 3) {
 			return res.status(400).send('bad dogName')
 		}
-		const rejectDogPath = `./${newDogFolderName}/${dogName}`;
+		const rejectDogPath = `./${newDogFolderName}/${dogName}`
 		fs.exists(rejectDogPath, exists => {
 			if (exists === false) return res.status(400).send('dogName no exist')
 			fs.move(rejectDogPath, `./${rejectDogFolderName}/${dogName}`, {overwrite: true})
@@ -205,7 +211,7 @@ app.post('/review', jsonParser, (req, res) => {
 		if (!dogName || dogName.length < 3) {
 			return res.status(400).send('bad dogName')
 		}
-		const newDogPath = `./${newDogFolderName}/${dogName}`;
+		const newDogPath = `./${newDogFolderName}/${dogName}`
 		fs.exists(newDogPath, exists => {
 			if (exists === false) return res.status(400).send('dogName no exist')
 			fs.move(newDogPath, `./${approvedDogFolderName}/${dogName}`, {overwrite: true})
