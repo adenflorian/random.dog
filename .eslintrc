@@ -16,6 +16,7 @@
         "quotes": [
             "error",
             "single"
-        ]
+        ],
+        "no-var": "error"
     }
 }

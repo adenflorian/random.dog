@@ -30,7 +30,7 @@ fs.ensureDirSync(appRoot + newDogFolderName)
 fs.ensureDirSync(appRoot + approvedDogFolderName)
 fs.ensureDirSync(appRoot + rejectDogFolderName)
 
-var immortalDoggos = 0
+let immortalDoggos = 0
 
 function checkHash(password) {
 	return bcrypt.compareSync(password, secret)
@@ -69,13 +69,13 @@ app.use((req, res, next) => {
 	next()
 })
 
-const viewsFolderPath = './lib/views/'
+const viewsFolderPath = appRoot + 'views/'
 
-var helloworld = hbs.compile(fs.readFileSync(viewsFolderPath + 'helloworld.hbs', 'utf8'))
-var upload = hbs.compile(fs.readFileSync(viewsFolderPath + 'upload.hbs', 'utf8'))
-var review = hbs.compile(fs.readFileSync(viewsFolderPath + 'review.hbs', 'utf8'))
+const helloworld = hbs.compile(fs.readFileSync(viewsFolderPath + 'helloworld.hbs', 'utf8'))
+const upload = hbs.compile(fs.readFileSync(viewsFolderPath + 'upload.hbs', 'utf8'))
+const review = hbs.compile(fs.readFileSync(viewsFolderPath + 'review.hbs', 'utf8'))
 
-var cache = fs.readdirSync(appRoot + approvedDogFolderName)
+let cache = fs.readdirSync(appRoot + approvedDogFolderName)
 
 setInterval(() => {
 	updateCache()
@@ -103,7 +103,7 @@ app.get('/woof', (req, res) => {
 
 app.get('/', (req, res) => {
 	req.visitor.pageview(req.path).send()
-	var doggo = cache.random()
+	const doggo = cache.random()
 	if (path.extname(doggo) == '.mp4') {
 		res.status(200).send(helloworld({dogmp4: doggo, adopted: immortalDoggos}))
 	} else {
@@ -156,9 +156,9 @@ app.post('/upload', (req, res) => {
 		return res.status(200).send('Too many new doggos awaiting adoption, please try again later')
 	}
 
-	var uploadedFile = req.files.upload_file
+	const uploadedFile = req.files.upload_file
 
-	var acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4']
+	const acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4']
 
 	if (acceptedMimeTypes.indexOf(uploadedFile.mimetype) == -1) {
 		return res.status(400).send('Only png, jpeg, gif, and mp4 doggos allowed')
@@ -239,23 +239,23 @@ app.listen(privatePort, (err) => {
 })
 
 function getDateTime() {
-	var date = new Date()
+	const date = new Date()
 
-	var hour = date.getHours()
+	let hour = date.getHours()
 	hour = (hour < 10 ? '0' : '') + hour
 
-	var min = date.getMinutes()
+	let min = date.getMinutes()
 	min = (min < 10 ? '0' : '') + min
 
-	var sec = date.getSeconds()
+	let sec = date.getSeconds()
 	sec = (sec < 10 ? '0' : '') + sec
 
-	var year = date.getFullYear()
+	let year = date.getFullYear()
 
-	var month = date.getMonth() + 1
+	let month = date.getMonth() + 1
 	month = (month < 10 ? '0' : '') + month
 
-	var day = date.getDate()
+	let day = date.getDate()
 	day = (day < 10 ? '0' : '') + day
 
 	return year + ':' + month + ':' + day + ':' + hour + ':' + min + ':' + sec

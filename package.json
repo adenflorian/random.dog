@@ -7,7 +7,8 @@
     "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon -e js,hbs ./lib/randomdog.js\"",
     "prodstart": "pm2 start process.yml",
     "lint": "eslint .",
-    "test": "mocha"
+    "test": "mocha",
+    "clean": "rm -rf lib"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",
