@@ -21,25 +21,27 @@ async function updateDoggoCount() {
 
 updateDoggoCount()
 
-let cache = getGoodDogsSync()
-
-setInterval(() => {
-    updateCache()
-}, 20000)
-
-async function updateCache() {
-    try {
-        const goodDogs = await getGoodDogs()
-        cache = goodDogs
-        updateDoggoCount()
-    } catch (error) {
-        console.error(error.stack)
-    }
-}
-
 const jsonParser = bodyParser.json()
 
-export const setup = (app, host) => {
+export const createApp = (host) => {
+    let cache = getGoodDogsSync()
+
+    setInterval(() => {
+        updateCache()
+    }, 20000)
+
+    async function updateCache() {
+        try {
+            const goodDogs = await getGoodDogs()
+            cache = goodDogs
+            updateDoggoCount()
+        } catch (error) {
+            console.error(error.stack)
+        }
+    }
+
+    const app = express()
+
     app.engine('handlebars', exphbs({defaultLayout: false}))
 
     app.set('view engine', 'handlebars')
@@ -191,6 +193,8 @@ export const setup = (app, host) => {
             res.status(500).send('something broke')
         }
     })
+
+    return app
 }
 
 function isDogErrorType400(err) {

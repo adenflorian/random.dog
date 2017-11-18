@@ -8,5 +8,8 @@
         "node_modules": true
     },
     "html.format.indentHandlebars": true,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false
+    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "mocha.requires": [
+        "babel-register"
+    ]
 }

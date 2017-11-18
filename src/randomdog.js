@@ -1,5 +1,4 @@
-import express from 'express'
-import {setup} from './endpoints'
+import {createApp} from './app'
 
 console.log('*****************************')
 console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
@@ -9,9 +8,7 @@ console.log('*****************************')
 const privatePort = 8080
 const host = 'https://random.dog'
 
-export const app = express()
-
-setup(app, host)
+const app = createApp(host)
 
 app.listen(privatePort, (err) => {
 	if (err) return console.error(err.stack)
