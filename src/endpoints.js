@@ -165,17 +165,17 @@ export const setup = (app, host) => {
 
         const dogName = body.dogName
 
-        if (['reject', 'approve'].includes(body.action) === false) throw new DogError('bad action', 400)
+        if (['reject', 'adopt'].includes(body.action) === false) throw new DogError('bad action', 400)
 
         if (!dogName || dogName.length < 3) throw new DogError('bad dogName', 400)
 
         if (body.action === 'reject') {
-            adoptOrApprove(rejectDog, dogName, res, 'dog rejected')
+            adoptOrReject(rejectDog, dogName, res, 'dog rejected')
         } else {
-            adoptOrApprove(adoptDog, dogName, res, 'dog adopted')
+            adoptOrReject(adoptDog, dogName, res, 'dog adopted')
         }
 
-        async function adoptOrApprove(fn, dogName, res, message) {
+        async function adoptOrReject(fn, dogName, res, message) {
             await fn(dogName)
             updateCache()
             res.status(200).send(message)
