@@ -4,10 +4,10 @@
   "description": "The nodejs code behind http://random.dog",
   "main": "randomdog.js",
   "scripts": {
-    "start": "nodemon -e js,hbs randomdog.js",
+    "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon -e js,hbs ./lib/randomdog.js\"",
     "prodstart": "pm2 start process.yml",
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",
@@ -21,8 +21,18 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
+    "concurrently": "^3.5.0",
     "eslint": "^4.11.0",
-    "nodemon": "^1.12.1"
+    "mocha": "^4.0.1",
+    "nodemon": "^1.12.1",
+    "sinon": "^4.1.2",
+    "sinon-chai": "^2.14.0"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 {
     "parserOptions": {
         "ecmaVersion": 6,
-        "sourceType": "script"
+        "sourceType": "module"
     },
     "extends": "eslint:recommended",
     "env": {

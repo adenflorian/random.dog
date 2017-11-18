@@ -1,12 +1,12 @@
-const bodyParser = require('body-parser')
-const express = require('express')
-const fileUpload = require('express-fileupload')
-const fs = require('fs-extra')
-const hbs = require('handlebars')
-const path = require('path')
-const ua = require('universal-analytics')
-const uuidV4 = require('uuid/v4')
-const bcrypt = require('bcrypt')
+import bodyParser from 'body-parser'
+import express from 'express'
+import fileUpload from 'express-fileupload'
+import fs from 'fs-extra'
+import hbs from 'handlebars'
+import path from 'path'
+import ua from 'universal-analytics'
+import uuidV4 from 'uuid/v4'
+import bcrypt from 'bcrypt'
 
 console.log('*****************************')
 console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
@@ -20,13 +20,15 @@ Array.prototype.random = function () {
 	return this[Math.floor(Math.random() * this.length)]
 }
 
+const appRoot = './'
+
 const newDogFolderName = 'newdoggos'
 const approvedDogFolderName = 'img'
 const rejectDogFolderName = 'rejects'
 
-fs.ensureDirSync('./' + newDogFolderName)
-fs.ensureDirSync('./' + approvedDogFolderName)
-fs.ensureDirSync('./' + rejectDogFolderName)
+fs.ensureDirSync(appRoot + newDogFolderName)
+fs.ensureDirSync(appRoot + approvedDogFolderName)
+fs.ensureDirSync(appRoot + rejectDogFolderName)
 
 var immortalDoggos = 0
 
@@ -35,7 +37,7 @@ function checkHash(password) {
 }
 
 function updateDoggoCount() {
-	fs.readdir('./' + approvedDogFolderName, (err, files) => {
+	fs.readdir(appRoot + approvedDogFolderName, (err, files) => {
 		if (err) {
 			console.log(err)
 			return
@@ -46,7 +48,7 @@ function updateDoggoCount() {
 
 updateDoggoCount()
 
-const app = express()
+export const app = express()
 const jsonParser = bodyParser.json()
 
 app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}))
@@ -67,18 +69,20 @@ app.use((req, res, next) => {
 	next()
 })
 
-var helloworld = hbs.compile(fs.readFileSync('./views/helloworld.hbs', 'utf8'))
-var upload = hbs.compile(fs.readFileSync('./views/upload.hbs', 'utf8'))
-var review = hbs.compile(fs.readFileSync('./views/review.hbs', 'utf8'))
+const viewsFolderPath = './lib/views/'
 
-var cache = fs.readdirSync('./' + approvedDogFolderName)
+var helloworld = hbs.compile(fs.readFileSync(viewsFolderPath + 'helloworld.hbs', 'utf8'))
+var upload = hbs.compile(fs.readFileSync(viewsFolderPath + 'upload.hbs', 'utf8'))
+var review = hbs.compile(fs.readFileSync(viewsFolderPath + 'review.hbs', 'utf8'))
+
+var cache = fs.readdirSync(appRoot + approvedDogFolderName)
 
 setInterval(() => {
 	updateCache()
 }, 20000)
 
 function updateCache() {
-	fs.readdir('./' + approvedDogFolderName, (err, files) => {
+	fs.readdir(appRoot + approvedDogFolderName, (err, files) => {
 		if (err) return console.error(err.stack)
 		cache = files
 	})
@@ -109,7 +113,7 @@ app.get('/', (req, res) => {
 
 app.get('/doggos', (req, res) => {
 	req.visitor.pageview(req.path).send()
-	fs.readdir('./' + approvedDogFolderName, (err, files) => {
+	fs.readdir(appRoot + approvedDogFolderName, (err, files) => {
 		if (err) {
 			console.log(err)
 			res.status(500).send()
@@ -122,15 +126,15 @@ app.get('/doggos', (req, res) => {
 app.get('*', (req, res, next) => {
 	req.visitor.pageview('*').send()
 	if (req.query.bone && checkHash(req.query.bone) === true) {
-		express.static('./' + newDogFolderName)(req, res, next)
+		express.static(appRoot + newDogFolderName)(req, res, next)
 	} else {
-		express.static('./' + approvedDogFolderName)(req, res, next)
+		express.static(appRoot + approvedDogFolderName)(req, res, next)
 	}
 })
 
-app.get('/favicon.*', (req, res, next) => {
-	req.visitor.pageview('/favicon.*').send()
-	express.static('.')(req, res, next)
+app.get('/favicon.ico', (req, res, next) => {
+	req.visitor.pageview('/favicon.ico').send()
+	express.static(appRoot)(req, res, next)
 })
 
 app.get('/upload', (req, res) => {
@@ -168,7 +172,7 @@ app.post('/upload', (req, res) => {
 app.get('/review', (req, res) => {
 	req.visitor.pageview(req.path).send()
 	if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
-	fs.readdir('./' + newDogFolderName + '/', (err, files) => {
+	fs.readdir(appRoot + newDogFolderName + '/', (err, files) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send('i broke')
