@@ -13,9 +13,8 @@ console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
 console.log('*****************************')
 
 // Should be run behind a reverse proxy
-const domain = 'random.dog'
 const privatePort = 8080
-const host = `https://random.dog`
+const host = 'https://random.dog'
 
 Array.prototype.random = function () {
 	return this[Math.floor(Math.random() * this.length)]
@@ -74,7 +73,7 @@ var review = hbs.compile(fs.readFileSync('./views/review.hbs', 'utf8'))
 
 var cache = fs.readdirSync('./' + approvedDogFolderName)
 
-var refresher = setInterval(() => {
+setInterval(() => {
 	updateCache()
 }, 20000)
 
