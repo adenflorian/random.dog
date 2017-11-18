@@ -1,45 +1,50 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import fileUpload from 'express-fileupload'
-import fs from 'fs-extra'
-import hbs from 'handlebars'
 import path from 'path'
 import ua from 'universal-analytics'
 import uuidV4 from 'uuid/v4'
+import exphbs from 'express-handlebars'
 import {checkHash} from './hash-util'
+import {dogFolderName, getDoggoCount, getGoodDogs, getGoodDogsSync, getNewDogs, rejectDog, adoptDog} from './fs-layer'
+import {DogError} from './dog-error'
 
 Array.prototype.random = function () {
     return this[Math.floor(Math.random() * this.length)]
 }
 
-const appRoot = './'
-
-const newDogFolderName = 'newdoggos'
-const approvedDogFolderName = 'img'
-const rejectDogFolderName = 'rejects'
-
-fs.ensureDirSync(appRoot + newDogFolderName)
-fs.ensureDirSync(appRoot + approvedDogFolderName)
-fs.ensureDirSync(appRoot + rejectDogFolderName)
-
 let immortalDoggos = 0
 
-function updateDoggoCount() {
-    fs.readdir(appRoot + approvedDogFolderName, (err, files) => {
-        if (err) {
-            console.log(err)
-            return
-        }
-        immortalDoggos = files.length
-    })
+async function updateDoggoCount() {
+    immortalDoggos = await getDoggoCount()
 }
 
 updateDoggoCount()
 
+let cache = getGoodDogsSync()
+
+setInterval(() => {
+    updateCache()
+}, 20000)
+
+async function updateCache() {
+    try {
+        const goodDogs = await getGoodDogs()
+        cache = goodDogs
+        updateDoggoCount()
+    } catch (error) {
+        console.error(error.stack)
+    }
+}
+
 const jsonParser = bodyParser.json()
 
 export const setup = (app, host) => {
-    app.use(ua.middleware('UA-50585312-4', { cookieName: '_ga', https: true }))
+    app.engine('handlebars', exphbs({defaultLayout: false}))
+
+    app.set('view engine', 'handlebars')
+
+    app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}))
 
     app.use(fileUpload({
         limits: {
@@ -57,26 +62,6 @@ export const setup = (app, host) => {
         next()
     })
 
-    const viewsFolderPath = appRoot + 'views/'
-
-    const helloworld = hbs.compile(fs.readFileSync(viewsFolderPath + 'helloworld.hbs', 'utf8'))
-    const upload = hbs.compile(fs.readFileSync(viewsFolderPath + 'upload.hbs', 'utf8'))
-    const review = hbs.compile(fs.readFileSync(viewsFolderPath + 'review.hbs', 'utf8'))
-
-    let cache = fs.readdirSync(appRoot + approvedDogFolderName)
-
-    setInterval(() => {
-        updateCache()
-    }, 20000)
-
-    function updateCache() {
-        fs.readdir(appRoot + approvedDogFolderName, (err, files) => {
-            if (err) return console.error(err.stack)
-            cache = files
-        })
-        updateDoggoCount()
-    }
-
     app.get('/woof.json', (req, res) => {
         req.visitor.pageview(req.path).send()
         res.status(200).json({
@@ -92,55 +77,50 @@ export const setup = (app, host) => {
     app.get('/', (req, res) => {
         req.visitor.pageview(req.path).send()
         const doggo = cache.random()
-        if (path.extname(doggo) == '.mp4') {
-            res.status(200).send(helloworld({ dogmp4: doggo, adopted: immortalDoggos }))
-        } else {
-            res.status(200).send(helloworld({ dogimg: doggo, adopted: immortalDoggos }))
-        }
+
+        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
+
+        res.render('helloworld.handlebars', {
+            [dogType]: doggo,
+            adopted: immortalDoggos
+        })
     })
 
-    app.get('/doggos', (req, res) => {
+    app.get('/doggos', async (req, res) => {
         req.visitor.pageview(req.path).send()
-        fs.readdir(appRoot + approvedDogFolderName, (err, files) => {
-            if (err) {
-                console.log(err)
-                res.status(500).send()
-            } else {
-                res.status(200).json(files)
-            }
-        })
+        res.status(200).json(await getGoodDogs())
     })
 
     app.get('*', (req, res, next) => {
         req.visitor.pageview('*').send()
         if (req.query.bone && checkHash(req.query.bone) === true) {
-            express.static(appRoot + newDogFolderName)(req, res, next)
+            express.static(dogFolderName.new)(req, res, next)
         } else {
-            express.static(appRoot + approvedDogFolderName)(req, res, next)
+            express.static(dogFolderName.approved)(req, res, next)
         }
     })
 
     app.get('/favicon.ico', (req, res, next) => {
         req.visitor.pageview('/favicon.ico').send()
-        express.static(appRoot)(req, res, next)
+        express.static('.')(req, res, next)
     })
 
-    app.get('/upload', (req, res) => {
+    app.get('/upload', async (req, res) => {
         req.visitor.pageview(req.path).send()
-        fs.readdir('./newdoggos/', (err, files) => {
-            res.status(200).send(upload({
-                dog: files,
-                waitingdogs: files.length
-            }))
-        })
+
+        const newDogs = await getNewDogs()
+
+        res.render('upload', {dog: newDogs, waitingdogs: newDogs.length})
     })
 
-    app.post('/upload', (req, res) => {
+    app.post('/upload', async (req, res) => {
         req.visitor.pageview('POST ' + req.path).send()
         if (!req.files) return res.status(400).send('No files were uploaded.')
 
+        const newDogs = await getNewDogs()
+
         // Limit number of files in newdoggos folder to 250
-        if (fs.readdirSync('newdoggos').length >= 250) {
+        if (newDogs.length >= 250) {
             return res.status(200).send('Too many new doggos awaiting adoption, please try again later')
         }
 
@@ -157,67 +137,64 @@ export const setup = (app, host) => {
         return res.status(200).send('Doggo adopted!')
     })
 
-    app.get('/review', (req, res) => {
+    app.get('/review', async (req, res) => {
         req.visitor.pageview(req.path).send()
+
         if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
-        fs.readdir(appRoot + newDogFolderName + '/', (err, files) => {
-            if (err) {
-                console.log(err)
-                return res.status(500).send('i broke')
-            }
-            if (files.length === 0) return res.status(200).send('no doggos to review')
-            const doggo = files[0]
-            if (path.extname(doggo) == '.mp4') {
-                res.status(200).send(review({ dogmp4: doggo, dog: doggo, bone: req.query.bone }))
-            } else {
-                res.status(200).send(review({ dogimg: doggo, dog: doggo, bone: req.query.bone }))
-            }
+
+        const newDogs = await getNewDogs()
+
+        if (newDogs.length === 0) return res.status(200).send('no doggos to review')
+
+        const doggo = newDogs[0]
+
+        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
+
+        res.render('review', {
+            [dogType]: doggo,
+            dog: doggo,
+            bone: req.query.bone
         })
     })
 
-    app.post('/review', jsonParser, (req, res) => {
-        req.visitor.pageview(req.path).send()
-        if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
-        if (!req.body) return res.sendStatus(400)
-        const dogName = req.body.dogName
-        if (req.body.action === 'reject') {
-            if (!dogName || dogName.length < 3) {
-                return res.status(400).send('bad dogName')
-            }
-            const rejectDogPath = `./${newDogFolderName}/${dogName}`
-            fs.exists(rejectDogPath, exists => {
-                if (exists === false) return res.status(400).send('dogName no exist')
-                fs.move(rejectDogPath, `./${rejectDogFolderName}/${dogName}`, { overwrite: true })
-                    .then(() => {
-                        updateCache()
-                        return res.status(200).send('dog rejected')
-                    })
-                    .catch(err => {
-                        console.log(err)
-                        return res.status(500).send('something broke')
-                    })
-            })
-        } else if (req.body.action === 'adopt') {
-            if (!dogName || dogName.length < 3) {
-                return res.status(400).send('bad dogName')
-            }
-            const newDogPath = `./${newDogFolderName}/${dogName}`
-            fs.exists(newDogPath, exists => {
-                if (exists === false) return res.status(400).send('dogName no exist')
-                fs.move(newDogPath, `./${approvedDogFolderName}/${dogName}`, { overwrite: true })
-                    .then(() => {
-                        updateCache()
-                        return res.status(200).send('dog adopted')
-                    })
-                    .catch(err => {
-                        console.log(err)
-                        return res.status(500).send('something broke')
-                    })
-            })
+    app.post('/review', jsonParser, async ({visitor, path, query, body}, res) => {
+        visitor.pageview(path).send()
+
+        if (!query.bone || checkHash(query.bone) === false) throw new DogError('no cats allowed', 401)
+        if (!body) throw new DogError('missing body', 400)
+
+        const dogName = body.dogName
+
+        if (['reject', 'approve'].includes(body.action) === false) throw new DogError('bad action', 400)
+
+        if (!dogName || dogName.length < 3) throw new DogError('bad dogName', 400)
+
+        if (body.action === 'reject') {
+            adoptOrApprove(rejectDog, dogName, res, 'dog rejected')
         } else {
-            return res.status(400).send('bad action')
+            adoptOrApprove(adoptDog, dogName, res, 'dog adopted')
+        }
+
+        async function adoptOrApprove(fn, dogName, res, message) {
+            await fn(dogName)
+            updateCache()
+            res.status(200).send(message)
         }
     })
+
+    // eslint-disable-next-line no-unused-vars
+    app.use(function (err, req, res, next) {
+        if (isDogErrorType400(err)) {
+            return res.status(err.dogErrorType).send(err.message)
+        } else {
+            console.error(err.stack)
+            res.status(500).send('something broke')
+        }
+    })
+}
+
+function isDogErrorType400(err) {
+    return err.dogErrorType && err.dogErrorType >= 400 && err.dogErrorType < 500
 }
 
 function getDateTime() {

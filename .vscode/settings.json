@@ -7,5 +7,6 @@
         "**/.DS_Store": true,
         "node_modules": true
     },
-    "html.format.indentHandlebars": true
+    "html.format.indentHandlebars": true,
+    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false
 }

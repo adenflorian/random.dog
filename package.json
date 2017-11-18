@@ -15,6 +15,7 @@
     "body-parser": "^1.18.2",
     "express": "^4.15.4",
     "express-fileupload": "^0.1.4",
+    "express-handlebars": "^3.0.0",
     "fs-extra": "^4.0.2",
     "handlebars": "^4.0.10",
     "passport": "^0.4.0",
@@ -33,7 +34,8 @@
     "mocha": "^4.0.1",
     "nodemon": "^1.12.1",
     "sinon": "^4.1.2",
-    "sinon-chai": "^2.14.0"
+    "sinon-chai": "^2.14.0",
+    "supertest": "^3.0.0"
   },
   "repository": {
     "type": "git",
