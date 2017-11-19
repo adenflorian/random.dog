@@ -8,10 +8,7 @@ import exphbs from 'express-handlebars'
 import {checkHash} from './hash-util'
 import {dogFolderName, getDoggoCount, getGoodDogs, getGoodDogsSync, getNewDogs, rejectDog, adoptDog} from './fs-layer'
 import {DogError} from './dog-error'
-
-Array.prototype.random = function () {
-    return this[Math.floor(Math.random() * this.length)]
-}
+import {DogCache} from './DogCache'
 
 let immortalDoggos = 0
 
@@ -24,7 +21,7 @@ updateDoggoCount()
 const jsonParser = bodyParser.json()
 
 export const createApp = (host) => {
-    let cache = getGoodDogsSync()
+    let cache = new DogCache(getGoodDogsSync())
 
     setInterval(() => {
         updateCache()
@@ -33,7 +30,7 @@ export const createApp = (host) => {
     async function updateCache() {
         try {
             const goodDogs = await getGoodDogs()
-            cache = goodDogs
+            cache = new DogCache(goodDogs)
             updateDoggoCount()
         } catch (error) {
             console.error(error.stack)
@@ -64,35 +61,7 @@ export const createApp = (host) => {
         next()
     })
 
-    app.get('/woof.json', (req, res) => {
-        req.visitor.pageview(req.path).send()
-        res.status(200).json({
-            url: `${host}/${cache.random()}`
-        })
-    })
-
-    app.get('/woof', (req, res) => {
-        req.visitor.pageview(req.path).send()
-        res.status(200).send(cache.random())
-    })
-
-    app.get('/', (req, res) => {
-        req.visitor.pageview(req.path).send()
-        const doggo = cache.random()
-
-        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
-
-        res.render('helloworld.handlebars', {
-            [dogType]: doggo,
-            adopted: immortalDoggos
-        })
-    })
-
-    app.get('/doggos', async (req, res) => {
-        req.visitor.pageview(req.path).send()
-        res.status(200).json(await getGoodDogs())
-    })
-
+    // API
     app.get('*', (req, res, next) => {
         req.visitor.pageview('*').send()
         if (req.query.bone && checkHash(req.query.bone) === true) {
@@ -102,17 +71,23 @@ export const createApp = (host) => {
         }
     })
 
-    app.get('/favicon.ico', (req, res, next) => {
-        req.visitor.pageview('/favicon.ico').send()
-        express.static('.')(req, res, next)
+    app.get('/woof', (req, res) => {
+        req.visitor.pageview(req.path).send()
+        //const filters = req.query.filter.split(',')
+        const dog = cache.random()
+        res.status(200).send(dog)
     })
 
-    app.get('/upload', async (req, res) => {
+    app.get('/woof.json', (req, res) => {
         req.visitor.pageview(req.path).send()
+        res.status(200).json({
+            url: `${host}/${cache.random()}`
+        })
+    })
 
-        const newDogs = await getNewDogs()
-
-        res.render('upload', {dog: newDogs, waitingdogs: newDogs.length})
+    app.get('/doggos', async (req, res) => {
+        req.visitor.pageview(req.path).send()
+        res.status(200).json(await getGoodDogs())
     })
 
     app.post('/upload', async (req, res) => {
@@ -139,26 +114,6 @@ export const createApp = (host) => {
         return res.status(200).send('Doggo adopted!')
     })
 
-    app.get('/review', async (req, res) => {
-        req.visitor.pageview(req.path).send()
-
-        if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
-
-        const newDogs = await getNewDogs()
-
-        if (newDogs.length === 0) return res.status(200).send('no doggos to review')
-
-        const doggo = newDogs[0]
-
-        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
-
-        res.render('review', {
-            [dogType]: doggo,
-            dog: doggo,
-            bone: req.query.bone
-        })
-    })
-
     app.post('/review', jsonParser, async ({visitor, path, query, body}, res) => {
         visitor.pageview(path).send()
 
@@ -182,6 +137,53 @@ export const createApp = (host) => {
             updateCache()
             res.status(200).send(message)
         }
+    })
+
+    // Pages
+    app.get('/', (req, res) => {
+        req.visitor.pageview(req.path).send()
+        const doggo = cache.random()
+
+        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
+
+        res.render('helloworld.handlebars', {
+            [dogType]: doggo,
+            adopted: immortalDoggos
+        })
+    })
+
+    app.get('/upload', async (req, res) => {
+        req.visitor.pageview(req.path).send()
+
+        const newDogs = await getNewDogs()
+
+        res.render('upload', {dog: newDogs, waitingdogs: newDogs.length})
+    })
+
+    app.get('/review', async (req, res) => {
+        req.visitor.pageview(req.path).send()
+
+        if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
+
+        const newDogs = await getNewDogs()
+
+        if (newDogs.length === 0) return res.status(200).send('no doggos to review')
+
+        const doggo = newDogs[0]
+
+        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
+
+        res.render('review', {
+            [dogType]: doggo,
+            dog: doggo,
+            bone: req.query.bone
+        })
+    })
+
+    // Other
+    app.get('/favicon.ico', (req, res, next) => {
+        req.visitor.pageview('/favicon.ico').send()
+        express.static('.')(req, res, next)
     })
 
     // eslint-disable-next-line no-unused-vars
