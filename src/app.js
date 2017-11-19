@@ -5,6 +5,7 @@ import path from 'path'
 import ua from 'universal-analytics'
 import uuidV4 from 'uuid/v4'
 import exphbs from 'express-handlebars'
+import {List} from 'immutable'
 import {checkHash} from './hash-util'
 import {dogFolderName, getDoggoCount, getGoodDogs, getNewDogs, rejectDog, adoptDog} from './fs-layer'
 import {DogError} from './dog-error'
@@ -21,7 +22,7 @@ updateDoggoCount()
 const jsonParser = bodyParser.json()
 
 export const createApp = async (host) => {
-    let cache = new DogCache(await getGoodDogs())
+    let cache = new DogCache(new List(await getGoodDogs()))
 
     setInterval(() => {
         updateCache()
@@ -30,7 +31,7 @@ export const createApp = async (host) => {
     async function updateCache() {
         try {
             const goodDogs = await getGoodDogs()
-            cache = new DogCache(goodDogs)
+            cache = new DogCache(new List(goodDogs))
             updateDoggoCount()
         } catch (error) {
             console.error(error.stack)
@@ -73,9 +74,14 @@ export const createApp = async (host) => {
 
     app.get('/woof', (req, res) => {
         req.visitor.pageview(req.path).send()
-        //const filters = req.query.filter.split(',')
-        const dog = cache.random()
-        res.status(200).send(dog)
+        let dogs
+        if (req.query.filter) {
+            const filters = req.query.filter.split(',')
+            dogs = cache.applyFilters(filters)
+        } else {
+            dogs = cache
+        }
+        res.status(200).send(dogs.random())
     })
 
     app.get('/woof.json', (req, res) => {
@@ -87,7 +93,7 @@ export const createApp = async (host) => {
 
     app.get('/doggos', async (req, res) => {
         req.visitor.pageview(req.path).send()
-        res.status(200).json(cache.all())
+        res.status(200).json(cache)
     })
 
     app.post('/upload', async (req, res) => {

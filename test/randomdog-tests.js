@@ -11,18 +11,6 @@ describe('randomdog', () => {
     after(() => {
         fsLayer.getGoodDogs.restore()
     })
-    describe('get /woof.json', () => {
-        it('should go woof', async () => {
-            fsLayer.getGoodDogs.resolves(['testdog.jpg'])
-            return request(await createApp('testhost'))
-                .get('/woof.json')
-                .expect('Content-Type', /json/)
-                .expect(200)
-                .then(response => {
-                    expect(response.body.url).to.equal('testhost/testdog.jpg')
-                })
-        })
-    })
     describe('get /woof', () => {
         it('should go woof', async () => {
             fsLayer.getGoodDogs.resolves(['testdog.jpg'])
@@ -32,6 +20,28 @@ describe('randomdog', () => {
                 .expect(200)
                 .then(response => {
                     expect(response.text).to.equal('testdog.jpg')
+                })
+        })
+        it('should not return jpeg dogs when filter is jpg', async () => {
+            fsLayer.getGoodDogs.resolves(['testdog.jpg', 'dog.png', 'testdog.jpg'])
+            return request(await createApp('testhost'))
+                .get('/woof?filter=jpg')
+                .expect('Content-Type', /text\/html/)
+                .expect(200)
+                .then(response => {
+                    expect(response.text).to.equal('dog.png')
+                })
+        })
+    })
+    describe('get /woof.json', () => {
+        it('should go woof', async () => {
+            fsLayer.getGoodDogs.resolves(['testdog.jpg'])
+            return request(await createApp('testhost'))
+                .get('/woof.json')
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .then(response => {
+                    expect(response.body.url).to.equal('testhost/testdog.jpg')
                 })
         })
     })
