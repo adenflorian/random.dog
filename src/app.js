@@ -74,27 +74,29 @@ export const createApp = async (host) => {
 
     app.get('/woof', (req, res) => {
         req.visitor.pageview(req.path).send()
-        let dogs
-        if (req.query.filter) {
-            const filters = req.query.filter.split(',')
-            dogs = cache.applyFilters(filters)
-        } else {
-            dogs = cache
-        }
-        res.status(200).send(dogs.random())
+        res.status(200).send(getDogsMaybeWithFilter(req).random())
     })
 
     app.get('/woof.json', (req, res) => {
         req.visitor.pageview(req.path).send()
         res.status(200).json({
-            url: `${host}/${cache.random()}`
+            url: `${host}/${getDogsMaybeWithFilter(req).random()}`
         })
     })
 
     app.get('/doggos', async (req, res) => {
         req.visitor.pageview(req.path).send()
-        res.status(200).json(cache)
+        res.status(200).json(getDogsMaybeWithFilter(req))
     })
+
+    function getDogsMaybeWithFilter(req) {
+        if (req.query.filter) {
+            const filters = req.query.filter.split(',')
+            return cache.applyFilters(filters)
+        } else {
+            return cache
+        }
+    }
 
     app.post('/upload', async (req, res) => {
         req.visitor.pageview('POST ' + req.path).send()

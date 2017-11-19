@@ -44,6 +44,16 @@ describe('randomdog', () => {
                     expect(response.body.url).to.equal('testhost/testdog.jpg')
                 })
         })
+        it('should not return jpeg dogs when filter is jpg', async () => {
+            fsLayer.getGoodDogs.resolves(['testdog.jpg', 'dog.png', 'testdog.jpg'])
+            return request(await createApp('testhost'))
+                .get('/woof.json?filter=jpg')
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .then(response => {
+                    expect(response.body.url).to.equal('testhost/dog.png')
+                })
+        })
     })
     describe('get /doggos', () => {
         it('should return a lot of dogs', async () => {
@@ -54,6 +64,16 @@ describe('randomdog', () => {
                 .expect(200)
                 .then(response => {
                     expect(response.body).to.deep.equal(['doga', 'dogb'])
+                })
+        })
+        it('should return filtered dogs', async () => {
+            fsLayer.getGoodDogs.resolves(['doga.jpg', 'dogb.png'])
+            return request(await createApp('testhost'))
+                .get('/doggos?filter=jpg')
+                .expect('Content-Type', /application\/json/)
+                .expect(200)
+                .then(response => {
+                    expect(response.body).to.deep.equal(['dogb.png'])
                 })
         })
     })
