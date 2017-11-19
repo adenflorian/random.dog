@@ -6,7 +6,7 @@ import ua from 'universal-analytics'
 import uuidV4 from 'uuid/v4'
 import exphbs from 'express-handlebars'
 import {checkHash} from './hash-util'
-import {dogFolderName, getDoggoCount, getGoodDogs, getGoodDogsSync, getNewDogs, rejectDog, adoptDog} from './fs-layer'
+import {dogFolderName, getDoggoCount, getGoodDogs, getNewDogs, rejectDog, adoptDog} from './fs-layer'
 import {DogError} from './dog-error'
 import {DogCache} from './DogCache'
 
@@ -20,8 +20,8 @@ updateDoggoCount()
 
 const jsonParser = bodyParser.json()
 
-export const createApp = (host) => {
-    let cache = new DogCache(getGoodDogsSync())
+export const createApp = async (host) => {
+    let cache = new DogCache(await getGoodDogs())
 
     setInterval(() => {
         updateCache()
@@ -87,7 +87,7 @@ export const createApp = (host) => {
 
     app.get('/doggos', async (req, res) => {
         req.visitor.pageview(req.path).send()
-        res.status(200).json(await getGoodDogs())
+        res.status(200).json(cache.all())
     })
 
     app.post('/upload', async (req, res) => {

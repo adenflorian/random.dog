@@ -1,5 +1,6 @@
 import {expect} from 'chai'
 import sinon from 'sinon'
+import {List} from 'immutable'
 import {DogCache} from '../src/DogCache'
 import * as utils from '../src/utils'
 
@@ -25,6 +26,11 @@ describe('DogCache', () => {
         it('should return 2nd dog when randomInt returns 1', () => {
             sinon.stub(utils, 'randomInt').returns(1)
             expect(new DogCache(['dog1', 'dog2']).random()).to.equal('dog2')
+        })
+    })
+    describe('all', () => {
+        it('should return all dogs', () => {
+            expect(new DogCache(['dog1']).all()).to.deep.equal(new List(['dog1']))
         })
     })
 })

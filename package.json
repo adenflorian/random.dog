@@ -18,6 +18,7 @@
     "express-handlebars": "^3.0.0",
     "fs-extra": "^4.0.2",
     "handlebars": "^4.0.10",
+    "immutable": "^3.8.2",
     "passport": "^0.4.0",
     "universal-analytics": "^0.4.15",
     "uuid": "^3.1.0"

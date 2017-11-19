@@ -19,8 +19,6 @@ export function getDoggoCount() {
 
 export const getNewDogs = () => fs.readdir(dogFolderName.new + '/')
 export const getGoodDogs = () => fs.readdir(dogFolderName.approved + '/')
-export const getGoodDogsSync = () => fs.readdirSync(dogFolderName.approved + '/')
-
 
 export async function rejectDog(dogName) {
     const rejectDogPath = `./${dogFolderName.new}/${dogName}`

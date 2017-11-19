@@ -8,9 +8,10 @@ console.log('*****************************')
 const privatePort = 8080
 const host = 'https://random.dog'
 
-const app = createApp(host)
-
-app.listen(privatePort, (err) => {
-	if (err) return console.error(err.stack)
-	console.log(`Dogs barking at ${host}`)
-})
+createApp(host)
+	.then(app => {
+		app.listen(privatePort, (err) => {
+			if (err) return console.error(err.stack)
+			console.log(`Dogs barking at ${host}`)
+		})
+	})
