@@ -23,7 +23,7 @@ describe('randomdog', () => {
                 })
         })
         it('should not return jpeg dogs when filter is jpg', async () => {
-            fsLayer.getGoodDogs.resolves(['testdog.jpg', 'dog.png', 'testdog.jpg'])
+            fsLayer.getGoodDogs.resolves(['testdog.JPG', 'dog.png', 'testdog.jpg'])
             return request(await createApp('testhost'))
                 .get('/woof?filter=jpg')
                 .expect('Content-Type', /text\/html/)
@@ -45,7 +45,7 @@ describe('randomdog', () => {
                 })
         })
         it('should not return jpeg dogs when filter is jpg', async () => {
-            fsLayer.getGoodDogs.resolves(['testdog.jpg', 'dog.png', 'testdog.jpg'])
+            fsLayer.getGoodDogs.resolves(['testdog.jpg', 'dog.png', 'testdog.JPG'])
             return request(await createApp('testhost'))
                 .get('/woof.json?filter=jpg')
                 .expect('Content-Type', /json/)
@@ -67,7 +67,7 @@ describe('randomdog', () => {
                 })
         })
         it('should return filtered dogs', async () => {
-            fsLayer.getGoodDogs.resolves(['doga.jpg', 'dogb.png'])
+            fsLayer.getGoodDogs.resolves(['doga.Jpg', 'dogb.png'])
             return request(await createApp('testhost'))
                 .get('/doggos?filter=jpg')
                 .expect('Content-Type', /application\/json/)
