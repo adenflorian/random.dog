@@ -15,10 +15,11 @@ TODO
 [√] refresh page after uploading doggo
 [√] server side analytics
 [√] create review page for approving doggos
+[√] add favicon
+[ ] better metrics (like datadoghq.com)
 [ ] create script to deploy to prod
 [ ] create facebook page and link (subtly) on main page
 [ ] add new dog button
-[ ] add favicon
 [ ] make sure caching is working
 [ ] dog shelter ads
 [ ] use google vision api to approve dog uploads
