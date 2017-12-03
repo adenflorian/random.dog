@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -17,15 +18,19 @@
 </head>
 
 <body>
-    <p><input name="dog" type="file" id="doginput" /></p>
-    <p><button id="dogsubmit">Immortalize Doggo</button></p>
+    <p>
+        <input name="dog" type="file" id="doginput" />
+    </p>
+    <p>
+        <button id="dogsubmit">Immortalize Doggo</button>
+    </p>
     <p>All doggos subject to hooman inspection</p>
     <p id="result"></p>
 
     <h3>{{waitingdogs}} puppers awaiting adoption:</h3>
     <div class="dog-list">
         {{#each dog}}
-        <p>{{this}}</p>
+            <p>{{this}}</p>
         {{/each}}
     </div>
 
