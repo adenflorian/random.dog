@@ -111,10 +111,10 @@ export const createApp = async (host) => {
 
         const uploadedFile = req.files.upload_file
 
-        const acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4']
+        const acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4', 'video/webm']
 
         if (acceptedMimeTypes.indexOf(uploadedFile.mimetype) == -1) {
-            return res.status(400).send('Only png, jpeg, gif, and mp4 doggos allowed')
+            return res.status(400).send('Only png, jpeg, gif, mp4, and webm doggos allowed')
         }
 
         uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
@@ -152,10 +152,8 @@ export const createApp = async (host) => {
         req.visitor.pageview(req.path).send()
         const doggo = cache.random()
 
-        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
-
         res.render('helloworld.handlebars', {
-            [dogType]: doggo,
+            [getDogType(doggo)]: doggo,
             adopted: immortalDoggos
         })
     })
@@ -179,10 +177,8 @@ export const createApp = async (host) => {
 
         const doggo = newDogs[0]
 
-        const dogType = path.extname(doggo) == '.mp4' ? 'dogmp4' : 'dogimg'
-
         res.render('review', {
-            [dogType]: doggo,
+            [getDogType(doggo)]: doggo,
             dog: doggo,
             bone: req.query.bone
         })
@@ -205,6 +201,10 @@ export const createApp = async (host) => {
     })
 
     return app
+}
+
+function getDogType(doggo) {
+    return path.extname(doggo) == '.mp4' || path.extname(doggo) == '.webm' ? 'dogmp4' : 'dogimg'
 }
 
 function isDogErrorType400(err) {

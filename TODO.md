@@ -16,6 +16,7 @@ TODO
 [√] server side analytics
 [√] create review page for approving doggos
 [√] add favicon
+[√] support webm dogs
 [ ] better metrics (like datadoghq.com)
 [ ] create script to deploy to prod
 [ ] create facebook page and link (subtly) on main page
