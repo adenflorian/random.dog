@@ -44,7 +44,10 @@ export const createApp = async (host) => {
 
     app.set('view engine', 'handlebars')
 
-    app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}))
+    app.use((req, res, next) => {
+        req.visitor = ua('UA-50585312-4', 'API', {https: true, strictCidFormat: false})
+        next()
+    })
 
     app.use(fileUpload({
         limits: {
@@ -64,7 +67,7 @@ export const createApp = async (host) => {
 
     // API
     app.get('*', (req, res, next) => {
-        req.visitor.pageview(req.method + ' /*').send()
+        req.visitor.event('*', 'GET').send()
         if (req.query.bone && checkHash(req.query.bone) === true) {
             express.static(dogFolderName.new)(req, res, next)
         } else {
@@ -73,19 +76,19 @@ export const createApp = async (host) => {
     })
 
     app.get('/woof', (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('woof', 'GET').send()
         res.status(200).send(getDogsMaybeWithFilter(req).random())
     })
 
     app.get('/woof.json', (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('woof.json', 'GET').send()
         res.status(200).json({
             url: `${host}/${getDogsMaybeWithFilter(req).random()}`
         })
     })
 
     app.get('/doggos', async (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('doggos', 'GET').send()
         res.status(200).json(getDogsMaybeWithFilter(req))
     })
 
@@ -99,13 +102,18 @@ export const createApp = async (host) => {
     }
 
     app.post('/upload', async (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
-        if (!req.files) return res.status(400).send('No files were uploaded.')
+        req.visitor.event('upload', 'POST').send()
+
+        if (!req.files) {
+            req.visitor.event('upload', '400 No files were uploaded').send()
+            return res.status(400).send('No files were uploaded.')
+        }
 
         const newDogs = await getNewDogs()
 
         // Limit number of files in newdoggos folder to 250
         if (newDogs.length >= 250) {
+            req.visitor.event('upload', 'Too many new doggos').send()
             return res.status(200).send('Too many new doggos awaiting adoption, please try again later')
         }
 
@@ -114,26 +122,38 @@ export const createApp = async (host) => {
         const acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4', 'video/webm']
 
         if (acceptedMimeTypes.indexOf(uploadedFile.mimetype) == -1) {
+            req.visitor.event('upload', '400 bad file type').send()
             return res.status(400).send('Only png, jpeg, gif, mp4, and webm doggos allowed')
         }
 
         uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
 
-        req.visitor.event('upload', 'successful upload')
+        req.visitor.event('upload', 'successful upload').send()
         return res.status(200).send('Doggo adopted!')
     })
 
-    app.post('/review', jsonParser, async ({visitor, method, path, query, body}, res) => {
-        visitor.pageview(method + ' ' + path).send()
-
-        if (!query.bone || checkHash(query.bone) === false) throw new DogError('no cats allowed', 401)
-        if (!body) throw new DogError('missing body', 400)
+    app.post('/review', jsonParser, async ({visitor, query, body}, res) => {
+        visitor.event('review', 'POST').send()
+        if (!query.bone || checkHash(query.bone) === false) {
+            visitor.event('review', '401 Unauthorized').send()
+            throw new DogError('no cats allowed', 401)
+        }
+        if (!body) {
+            visitor.event('review', '400 missing body').send()
+            throw new DogError('missing body', 400)
+        }
 
         const dogName = body.dogName
 
-        if (['reject', 'adopt'].includes(body.action) === false) throw new DogError('bad action', 400)
+        if (['reject', 'adopt'].includes(body.action) === false) {
+            visitor.event('review', '400 bad action').send()
+            throw new DogError('bad action', 400)
+        }
 
-        if (!dogName || dogName.length < 3) throw new DogError('bad dogName', 400)
+        if (!dogName || dogName.length < 3) {
+            visitor.event('review', '400 bad dogName').send()
+            throw new DogError('bad dogName', 400)
+        }
 
         if (body.action === 'reject') {
             adoptOrReject(rejectDog, dogName, res, 'dog rejected', visitor)
@@ -144,14 +164,14 @@ export const createApp = async (host) => {
         async function adoptOrReject(fn, dogName, res, message, visitor) {
             await fn(dogName)
             updateCache()
-            visitor.event('review', message)
+            visitor.event('review', message).send()
             res.status(200).send(message)
         }
     })
 
     // Pages
     app.get('/', (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('/', 'GET').send()
         const doggo = cache.random()
 
         res.render('helloworld.handlebars', {
@@ -161,7 +181,7 @@ export const createApp = async (host) => {
     })
 
     app.get('/upload', async (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('upload', 'GET').send()
 
         const newDogs = await getNewDogs()
 
@@ -169,7 +189,7 @@ export const createApp = async (host) => {
     })
 
     app.get('/review', async (req, res) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('review', 'GET').send()
 
         if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
 
@@ -188,7 +208,7 @@ export const createApp = async (host) => {
 
     // Other
     app.get('/favicon.ico', (req, res, next) => {
-        req.visitor.pageview(req.method + ' ' + req.path).send()
+        req.visitor.event('favicon.ico', 'GET').send()
         express.static('.')(req, res, next)
     })
 
