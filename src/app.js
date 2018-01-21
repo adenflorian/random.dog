@@ -119,6 +119,7 @@ export const createApp = async (host) => {
 
         uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
 
+        req.visitor.event('upload', 'successful upload')
         return res.status(200).send('Doggo adopted!')
     })
 
@@ -135,14 +136,15 @@ export const createApp = async (host) => {
         if (!dogName || dogName.length < 3) throw new DogError('bad dogName', 400)
 
         if (body.action === 'reject') {
-            adoptOrReject(rejectDog, dogName, res, 'dog rejected')
+            adoptOrReject(rejectDog, dogName, res, 'dog rejected', visitor)
         } else {
-            adoptOrReject(adoptDog, dogName, res, 'dog adopted')
+            adoptOrReject(adoptDog, dogName, res, 'dog adopted', visitor)
         }
 
-        async function adoptOrReject(fn, dogName, res, message) {
+        async function adoptOrReject(fn, dogName, res, message, visitor) {
             await fn(dogName)
             updateCache()
+            visitor.event('review', message)
             res.status(200).send(message)
         }
     })
