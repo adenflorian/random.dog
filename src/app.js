@@ -64,7 +64,7 @@ export const createApp = async (host) => {
 
     // API
     app.get('*', (req, res, next) => {
-        req.visitor.pageview('*').send()
+        req.visitor.pageview(req.method + ' /*').send()
         if (req.query.bone && checkHash(req.query.bone) === true) {
             express.static(dogFolderName.new)(req, res, next)
         } else {
@@ -73,19 +73,19 @@ export const createApp = async (host) => {
     })
 
     app.get('/woof', (req, res) => {
-        req.visitor.pageview(req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
         res.status(200).send(getDogsMaybeWithFilter(req).random())
     })
 
     app.get('/woof.json', (req, res) => {
-        req.visitor.pageview(req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
         res.status(200).json({
             url: `${host}/${getDogsMaybeWithFilter(req).random()}`
         })
     })
 
     app.get('/doggos', async (req, res) => {
-        req.visitor.pageview(req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
         res.status(200).json(getDogsMaybeWithFilter(req))
     })
 
@@ -99,7 +99,7 @@ export const createApp = async (host) => {
     }
 
     app.post('/upload', async (req, res) => {
-        req.visitor.pageview('POST ' + req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
         if (!req.files) return res.status(400).send('No files were uploaded.')
 
         const newDogs = await getNewDogs()
@@ -123,8 +123,8 @@ export const createApp = async (host) => {
         return res.status(200).send('Doggo adopted!')
     })
 
-    app.post('/review', jsonParser, async ({visitor, path, query, body}, res) => {
-        visitor.pageview(path).send()
+    app.post('/review', jsonParser, async ({visitor, method, path, query, body}, res) => {
+        visitor.pageview(method + ' ' + path).send()
 
         if (!query.bone || checkHash(query.bone) === false) throw new DogError('no cats allowed', 401)
         if (!body) throw new DogError('missing body', 400)
@@ -151,7 +151,7 @@ export const createApp = async (host) => {
 
     // Pages
     app.get('/', (req, res) => {
-        req.visitor.pageview(req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
         const doggo = cache.random()
 
         res.render('helloworld.handlebars', {
@@ -161,7 +161,7 @@ export const createApp = async (host) => {
     })
 
     app.get('/upload', async (req, res) => {
-        req.visitor.pageview(req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
 
         const newDogs = await getNewDogs()
 
@@ -169,7 +169,7 @@ export const createApp = async (host) => {
     })
 
     app.get('/review', async (req, res) => {
-        req.visitor.pageview(req.path).send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
 
         if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
 
@@ -188,7 +188,7 @@ export const createApp = async (host) => {
 
     // Other
     app.get('/favicon.ico', (req, res, next) => {
-        req.visitor.pageview('/favicon.ico').send()
+        req.visitor.pageview(req.method + ' ' + req.path).send()
         express.static('.')(req, res, next)
     })
 
