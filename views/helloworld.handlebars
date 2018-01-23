@@ -2,33 +2,82 @@
 <html>
 
 <head>
+    <meta name="viewport" content="initial-scale=1">
     <title>random.dog</title>
     <link rel="icon" href="favicon.ico">
     <style>
         body {
             font-family: sans-serif;
-            font-size: 1em;
+            margin: 0;
+            height: 100vh;
         }
 
         #main-div {
             text-align: center;
-            height: 100%;
+            height: 100vh;
+            margin: 0;
+        }
+
+        header {
+            height: 10%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h3 {
+            padding: 20px;
+            margin: 0;
+            font-size: 3vh;
+        }
+
+        #img-div {
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #img-div div {
+            max-height: 100%;
         }
 
         #dog-img {
-            max-width: 80%;
-            max-height: 80%;
+            max-width: 100%;
+            max-height: 100%;
             box-shadow: 1px 1px 0 0 #ffffff inset, 0 2px 3px 0 #B3B3B3;
         }
 
         footer {
-            padding: 10px;
+            text-align: left;
             color: #aaa;
-            font-size: 0.8em;
+            font-size: 1em;
+            height: 10%;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+        }
+
+        footer>div {
+            padding: 10px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        @media screen and (max-width: 950px) {
+            footer>div {
+                flex-direction: column;
+                align-content: center;
+                text-align: center;
+                font-size: 1.5vh;
+            }
         }
 
         footer p {
-            margin: 2px;
+            margin: 0;
         }
 
         footer a {
@@ -44,27 +93,35 @@
 
 <body>
     <div id="main-div">
-        <h3>Hello World, This Is Dog</h3>
-        {{#if dogimg}}
-            <img id="dog-img" src="{{dogimg}}" />
-        {{/if}}
-        {{#if dogmp4}}
-            <video id="dog-img" autoplay loop muted>
-                <source src="{{dogmp4}}" type="video/mp4">
-            </video>
-        {{/if}}
+        <header>
+            <h3>Hello World, This Is Dog</h3>
+        </header>
+        <div id="img-div">
+            <div>
+                {{#if dogimg}}
+                    <img id="dog-img" src="{{dogimg}}" />
+                {{/if}}
+                {{#if dogmp4}}
+                    <video id="dog-img" autoplay loop muted>
+                        <source src="{{dogmp4}}" type="video/mp4">
+                    </video>
+                {{/if}}
+            </div>
+        </div>
         <footer>
-            <p>~{{adopted}} immortal puppers</p>
-            <p>
-                <a href="/upload">/upload</a>
-                <a href="/woof">/woof</a>
-                <a href="/woof.json">/woof.json</a>
-                <a href="/doggos">/doggos</a>
-            </p>
-            <p>
-                <a href="https://twitter.com/AdenFlorian">@AdenFlorian</a> |
-                <a href="https://github.com/AdenFlorian/random.dog">github</a>
-            </p>
+            <div>
+                <p>~{{adopted}} immortal puppers</p>
+                <p>
+                    <a href="/upload">/upload</a>
+                    <a href="/woof">/woof</a>
+                    <a href="/woof.json">/woof.json</a>
+                    <a href="/doggos">/doggos</a>
+                </p>
+                <p>
+                    <a href="https://twitter.com/AdenFlorian">@AdenFlorian</a> |
+                    <a href="https://github.com/AdenFlorian/random.dog">github</a>
+                </p>
+            </div>
         </footer>
     </div>
 
