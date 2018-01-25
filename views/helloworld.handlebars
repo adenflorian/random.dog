@@ -44,7 +44,7 @@
 
         #dog-img {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 80vh;
             box-shadow: 1px 1px 0 0 #ffffff inset, 0 2px 3px 0 #B3B3B3;
         }
 
@@ -54,38 +54,39 @@
             font-size: 1em;
             height: 10%;
             min-height: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: end;
-        }
-
-        footer>div {
-            padding: 10px;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            flex-wrap: wrap;
         }
 
         @media screen and (max-width: 950px) {
-            footer>div {
-                flex-direction: column;
-                align-content: center;
-                text-align: center;
-                font-size: 1.5vh;
+            footer {
+                font-size: 1.75vw;
             }
         }
 
-        footer p {
-            margin: 0;
+        footer table {
+            width: 100%;
+            height: 100%;
+            table-layout: fixed;
         }
 
-        footer a {
+        footer td {
+            vertical-align: bottom;
+            padding: 0;
+        }
+
+        footer td:nth-child(2) {
+            text-align: center
+        }
+
+        footer td:last-child {
+            text-align: right
+        }
+
+        a {
             color: #aaa;
             text-decoration: none;
         }
 
-        footer a:hover {
+        a:hover {
             color: #779;
         }
     </style>
@@ -109,19 +110,23 @@
             </div>
         </div>
         <footer>
-            <div>
-                <p>~{{adopted}} immortal puppers</p>
-                <p>
-                    <a href="/upload">/upload</a>
-                    <a href="/woof">/woof</a>
-                    <a href="/woof.json">/woof.json</a>
-                    <a href="/doggos">/doggos</a>
-                </p>
-                <p>
-                    <a href="https://twitter.com/AdenFlorian">@AdenFlorian</a> |
-                    <a href="https://github.com/AdenFlorian/random.dog">github</a>
-                </p>
-            </div>
+            <table>
+                <tr>
+                    <td>
+                        ~{{adopted}} immortal puppers
+                    </td>
+                    <td>
+                        <a href="/upload">/upload</a>
+                        <a href="/woof">/woof</a>
+                        <a href="/woof.json">/woof.json</a>
+                        <a href="/doggos">/doggos</a>
+                    </td>
+                    <td>
+                        <a href="https://twitter.com/AdenFlorian">@AdenFlorian</a> |
+                        <a href="https://github.com/AdenFlorian/random.dog">github</a>
+                    </td>
+                </tr>
+            </table>
         </footer>
     </div>
 
