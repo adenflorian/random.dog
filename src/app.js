@@ -211,6 +211,10 @@ export const createApp = async (host) => {
         req.visitor.event('favicon.ico', 'GET').send()
         express.static('.')(req, res, next)
     })
+    app.get('/sitemap.txt', (req, res, next) => {
+        req.visitor.event('sitemap.txt', 'GET').send()
+        express.static('.')(req, res, next)
+    })
 
     // eslint-disable-next-line no-unused-vars
     app.use(function (err, req, res, next) {

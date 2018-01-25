@@ -1,0 +1,5 @@
+https://random.dog/
+https://random.dog/upload
+https://random.dog/woof
+https://random.dog/woof.json
+https://random.dog/doggos
