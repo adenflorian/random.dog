@@ -202,7 +202,9 @@ export const createApp = async (host) => {
         res.render('review', {
             [getDogType(doggo)]: doggo,
             dog: doggo,
-            bone: req.query.bone
+            bone: req.query.bone,
+            waitingdogs: newDogs.length,
+            s: newDogs.length > 1 ? 's' : ''
         })
     })
 
