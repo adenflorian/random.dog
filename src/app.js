@@ -44,8 +44,9 @@ export const createApp = async (host) => {
 
     app.set('view engine', 'handlebars')
 
+    app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}))
+
     app.use((req, res, next) => {
-        req.visitor = ua('UA-50585312-4', 'API', {https: true, strictCidFormat: false})
         next()
     })
 
@@ -67,7 +68,7 @@ export const createApp = async (host) => {
 
     // API
     app.get('*', (req, res, next) => {
-        req.visitor.event('*', 'GET').send()
+        req.visitor.event('*', 'GET', 'api').send()
         if (req.query.bone && checkHash(req.query.bone) === true) {
             express.static(dogFolderName.new)(req, res, next)
         } else {
@@ -76,19 +77,19 @@ export const createApp = async (host) => {
     })
 
     app.get('/woof', (req, res) => {
-        req.visitor.event('woof', 'GET').send()
+        req.visitor.event('woof', 'GET', 'api').send()
         res.status(200).send(getDogsMaybeWithFilter(req).random())
     })
 
     app.get('/woof.json', (req, res) => {
-        req.visitor.event('woof.json', 'GET').send()
+        req.visitor.event('woof.json', 'GET', 'api').send()
         res.status(200).json({
             url: `${host}/${getDogsMaybeWithFilter(req).random()}`
         })
     })
 
     app.get('/doggos', async (req, res) => {
-        req.visitor.event('doggos', 'GET').send()
+        req.visitor.event('doggos', 'GET', 'api').send()
         res.status(200).json(getDogsMaybeWithFilter(req))
     })
 
@@ -102,10 +103,10 @@ export const createApp = async (host) => {
     }
 
     app.post('/upload', async (req, res) => {
-        req.visitor.event('upload', 'POST').send()
+        req.visitor.event('upload', 'POST', 'api').send()
 
         if (!req.files) {
-            req.visitor.event('upload', '400 No files were uploaded').send()
+            req.visitor.event('upload', '400 No files were uploaded', 'api').send()
             return res.status(400).send('No files were uploaded.')
         }
 
@@ -113,7 +114,7 @@ export const createApp = async (host) => {
 
         // Limit number of files in newdoggos folder to 250
         if (newDogs.length >= 250) {
-            req.visitor.event('upload', 'Too many new doggos').send()
+            req.visitor.event('upload', 'Too many new doggos', 'api').send()
             return res.status(200).send('Too many new doggos awaiting adoption, please try again later')
         }
 
@@ -122,36 +123,36 @@ export const createApp = async (host) => {
         const acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4', 'video/webm']
 
         if (acceptedMimeTypes.indexOf(uploadedFile.mimetype) == -1) {
-            req.visitor.event('upload', '400 bad file type').send()
+            req.visitor.event('upload', '400 bad file type', 'api').send()
             return res.status(400).send('Only png, jpeg, gif, mp4, and webm doggos allowed')
         }
 
         uploadedFile.mv('./newdoggos/' + uuidV4() + path.extname(uploadedFile.name))
 
-        req.visitor.event('upload', 'successful upload').send()
+        req.visitor.event('upload', 'successful upload', 'api').send()
         return res.status(200).send('Doggo adopted!')
     })
 
     app.post('/review', jsonParser, async ({visitor, query, body}, res) => {
-        visitor.event('review', 'POST').send()
+        visitor.event('review', 'POST', 'api').send()
         if (!query.bone || checkHash(query.bone) === false) {
-            visitor.event('review', '401 Unauthorized').send()
+            visitor.event('review', '401 Unauthorized', 'api').send()
             throw new DogError('no cats allowed', 401)
         }
         if (!body) {
-            visitor.event('review', '400 missing body').send()
+            visitor.event('review', '400 missing body', 'api').send()
             throw new DogError('missing body', 400)
         }
 
         const dogName = body.dogName
 
         if (['reject', 'adopt'].includes(body.action) === false) {
-            visitor.event('review', '400 bad action').send()
+            visitor.event('review', '400 bad action', 'api').send()
             throw new DogError('bad action', 400)
         }
 
         if (!dogName || dogName.length < 3) {
-            visitor.event('review', '400 bad dogName').send()
+            visitor.event('review', '400 bad dogName', 'api').send()
             throw new DogError('bad dogName', 400)
         }
 
@@ -171,7 +172,7 @@ export const createApp = async (host) => {
 
     // Pages
     app.get('/', (req, res) => {
-        req.visitor.event('/', 'GET').send()
+        req.visitor.event('/', 'GET', 'api').send()
         const doggo = cache.random()
 
         res.render('helloworld.handlebars', {
@@ -181,7 +182,7 @@ export const createApp = async (host) => {
     })
 
     app.get('/upload', async (req, res) => {
-        req.visitor.event('upload', 'GET').send()
+        req.visitor.event('upload', 'GET', 'api').send()
 
         const newDogs = await getNewDogs()
 
@@ -189,9 +190,12 @@ export const createApp = async (host) => {
     })
 
     app.get('/review', async (req, res) => {
-        req.visitor.event('review', 'GET').send()
+        req.visitor.event('review', 'GET', 'api').send()
 
-        if (!req.query.bone || checkHash(req.query.bone) === false) return res.sendStatus(401)
+        if (!req.query.bone || checkHash(req.query.bone) === false) {
+            req.visitor.event('review', 'GET-unauthorized', 'api').send()
+            return res.sendStatus(401)
+        }
 
         const newDogs = await getNewDogs()
 
@@ -210,11 +214,11 @@ export const createApp = async (host) => {
 
     // Other
     app.get('/favicon.ico', (req, res, next) => {
-        req.visitor.event('favicon.ico', 'GET').send()
+        req.visitor.event('favicon.ico', 'GET', 'api').send()
         express.static('.')(req, res, next)
     })
     app.get('/sitemap.txt', (req, res, next) => {
-        req.visitor.event('sitemap.txt', 'GET').send()
+        req.visitor.event('sitemap.txt', 'GET', 'api').send()
         express.static('.')(req, res, next)
     })
 
