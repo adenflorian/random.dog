@@ -66,9 +66,16 @@ export const createApp = async (host) => {
         next()
     })
 
+    function setCORSHeaders(res) {
+        res.header('Access-Control-Allow-Origin', '*')
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+        res.header('Access-Control-Allow-Methods', 'GET')
+    }
+
     // API
     app.get('*', (req, res, next) => {
         req.visitor.event('*', 'GET', 'api').send()
+        setCORSHeaders(res)
         if (req.query.bone && checkHash(req.query.bone) === true) {
             express.static(dogFolderName.new)(req, res, next)
         } else {
@@ -78,11 +85,13 @@ export const createApp = async (host) => {
 
     app.get('/woof', (req, res) => {
         req.visitor.event('woof', 'GET', 'api').send()
+        setCORSHeaders(res)
         res.status(200).send(getDogsMaybeWithFilter(req).random())
     })
 
     app.get('/woof.json', (req, res) => {
         req.visitor.event('woof.json', 'GET', 'api').send()
+        setCORSHeaders(res)
         res.status(200).json({
             url: `${host}/${getDogsMaybeWithFilter(req).random()}`
         })
@@ -90,6 +99,7 @@ export const createApp = async (host) => {
 
     app.get('/doggos', async (req, res) => {
         req.visitor.event('doggos', 'GET', 'api').send()
+        setCORSHeaders(res)
         res.status(200).json(getDogsMaybeWithFilter(req))
     })
 
@@ -165,7 +175,7 @@ export const createApp = async (host) => {
         async function adoptOrReject(fn, dogName, res, message, visitor) {
             await fn(dogName)
             updateCache()
-            visitor.event('review', message).send()
+            visitor.event('review', message, 'api').send()
             res.status(200).send(message)
         }
     })
