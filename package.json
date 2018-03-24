@@ -4,15 +4,17 @@
   "description": "The nodejs code behind http://random.dog",
   "main": "randomdog.js",
   "scripts": {
-    "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon -e js,hbs ./lib/randomdog.js\"",
+    "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon --inspect -e js,hbs ./lib/randomdog.js\"",
     "prodstart": "pm2 start process.yml",
     "lint": "eslint .",
     "test": "mocha",
+    "tdd": "mocha --watch --reporter dot",
     "clean": "rm -rf lib"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
     "express-fileupload": "^0.1.4",
     "express-handlebars": "^3.0.0",
@@ -36,7 +38,8 @@
     "concurrently": "^3.5.0",
     "eslint": "^4.11.0",
     "eslint-plugin-babel": "^4.1.2",
-    "mocha": "^4.0.1",
+    "make-promises-safe": "^1.1.0",
+    "mocha": "^5.0.0",
     "nodemon": "^1.12.1",
     "sinon": "^4.1.2",
     "sinon-chai": "^2.14.0",

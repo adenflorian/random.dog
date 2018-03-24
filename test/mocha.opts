@@ -1,1 +1,5 @@
---compilers js:babel-core/register
+--require babel-core/register
+--require make-promises-safe
+--require ./test/mocha-hook.js
+--inspect
+--exit

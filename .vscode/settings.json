@@ -4,8 +4,7 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/CVS": true,
-        "**/.DS_Store": true,
-        "node_modules": true
+        "**/.DS_Store": true
     },
     "html.format.indentHandlebars": true,
     "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,

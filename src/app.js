@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import fileUpload from 'express-fileupload'
+import cookieParser from 'cookie-parser'
 import path from 'path'
 import ua from 'universal-analytics'
 import uuidV4 from 'uuid/v4'
@@ -46,9 +47,7 @@ export const createApp = async (host) => {
 
     app.use(ua.middleware('UA-50585312-4', {cookieName: '_ga', https: true}))
 
-    app.use((req, res, next) => {
-        next()
-    })
+    app.use(cookieParser())
 
     app.use(fileUpload({
         limits: {
@@ -60,9 +59,9 @@ export const createApp = async (host) => {
     }))
 
     app.use((req, res, next) => {
-        console.log('NEW REQUEST: ' + getDateTime() + ' EST - NYC')
-        console.log(`requestor ip: ${req.connection.remoteAddress}`)
-        console.log(`${req.method} ${req.url}`)
+        log('NEW REQUEST: ' + getDateTime() + ' EST - NYC')
+        log(`requestor ip: ${req.connection.remoteAddress}`)
+        log(`${req.method} ${req.url}`)
         next()
     })
 
@@ -143,27 +142,31 @@ export const createApp = async (host) => {
         return res.status(200).send('Doggo adopted!')
     })
 
-    app.post('/review', jsonParser, async ({visitor, query, body}, res) => {
+    app.post('/review', jsonParser, async (req, res, next) => {
+        const {visitor, body} = req
+
         visitor.event('review', 'POST', 'api').send()
-        if (!query.bone || checkHash(query.bone) === false) {
+
+        if (isAuthorized(req) !== true) {
             visitor.event('review', '401 Unauthorized', 'api').send()
-            throw new DogError('no cats allowed', 401)
+            return next(new DogError('no cats allowed', 401))
         }
+
         if (!body) {
             visitor.event('review', '400 missing body', 'api').send()
-            throw new DogError('missing body', 400)
+            return next(new DogError('missing body', 400))
         }
 
         const dogName = body.dogName
 
         if (['reject', 'adopt'].includes(body.action) === false) {
             visitor.event('review', '400 bad action', 'api').send()
-            throw new DogError('bad action', 400)
+            return next(new DogError('bad action', 400))
         }
 
         if (!dogName || dogName.length < 3) {
             visitor.event('review', '400 bad dogName', 'api').send()
-            throw new DogError('bad dogName', 400)
+            return next(new DogError('bad dogName', 400))
         }
 
         if (body.action === 'reject') {
@@ -202,7 +205,7 @@ export const createApp = async (host) => {
     app.get('/review', async (req, res) => {
         req.visitor.event('review', 'GET', 'api').send()
 
-        if (!req.query.bone || checkHash(req.query.bone) === false) {
+        if (isAuthorized(req) !== true) {
             req.visitor.event('review', 'GET-unauthorized', 'api').send()
             return res.sendStatus(401)
         }
@@ -238,11 +241,18 @@ export const createApp = async (host) => {
             return res.status(err.dogErrorType).send(err.message)
         } else {
             console.error(err.stack)
-            res.status(500).send('something broke')
+            return res.status(500).send('something broke')
         }
     })
 
     return app
+}
+
+
+
+function isAuthorized(req) {
+    if (!req.cookies.bone) return false
+    return checkHash(Buffer.from(req.cookies.bone, 'base64').toString('ascii'))
 }
 
 function getDogType(doggo) {
@@ -274,4 +284,9 @@ function getDateTime() {
     day = (day < 10 ? '0' : '') + day
 
     return year + ':' + month + ':' + day + ':' + hour + ':' + min + ':' + sec
+}
+
+function log(message) {
+    if (process.env.NODE_ENV === 'test') return
+    console.log(message)
 }
