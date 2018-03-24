@@ -19,7 +19,7 @@ The nodejs code behind [random.dog](https://random.dog)
     -  `{"secret": "<put hash here>"}`
   - Use [bcrypt-cli](https://www.npmjs.com/package/bcrypt-cli) to hash the password to store in the `secret.json`
   - Example cookie header:
-    - `Cookie: cGFzc3dvcmQ=`
+    - `Cookie: bone=cGFzc3dvcmQ=`
 
 ## API
 
