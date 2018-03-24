@@ -4,11 +4,11 @@
   "description": "The nodejs code behind http://random.dog",
   "main": "randomdog.js",
   "scripts": {
-    "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon --inspect -e js,hbs ./lib/randomdog.js\"",
+    "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon -e js,hbs,handlebars ./lib/randomdog.js\"",
     "prodstart": "pm2 start process.yml",
     "lint": "eslint .",
     "test": "mocha",
-    "tdd": "mocha --watch --reporter dot --inspect",
+    "tdd": "mocha --watch --reporter dot",
     "clean": "rm -rf lib"
   },
   "dependencies": {

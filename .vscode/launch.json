@@ -10,7 +10,8 @@
             "name": "tdd - debug",
             "runtimeExecutable": "yarn",
             "runtimeArgs": [
-                "tdd"
+                "tdd",
+                "--inspect"
             ],
             "port": 9229
         },

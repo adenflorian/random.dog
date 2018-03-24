@@ -1,19 +1,20 @@
 import {expect} from 'chai'
 import sinon from 'sinon'
 import request from 'supertest'
+import express from 'express'
 import {createApp} from '../src/app'
 import * as fsLayer from '../src/fs-layer'
 import * as hashUtil from '../src/hash-util'
 
 describe('randomdog', () => {
     let sandbox
-    before(() => {
+    beforeEach(() => {
         sandbox = sinon.sandbox.create()
         sandbox.stub(fsLayer, 'getGoodDogs').resolves(['testDog.jpg'])
         sandbox.stub(fsLayer, 'adoptDog')
         sandbox.stub(hashUtil, 'checkHash').callsFake(key => key === 'goodKey')
     })
-    after(() => {
+    afterEach(() => {
         sandbox.restore()
     })
     describe('get /woof', () => {
@@ -80,6 +81,28 @@ describe('randomdog', () => {
                 .then(response => {
                     expect(response.body).to.deep.equal(['dogb.png'])
                 })
+        })
+    })
+    describe('get *', () => {
+        it('should return 401 when referred from /review and no bone', async () => {
+            return request(await createApp('testhost'))
+                .get('/abc.jpg')
+                .set('Referer', 'http://example.com/review')
+                .expect(401)
+        })
+        it('should return 200 when referred from /review and good bone', async () => {
+            sandbox.stub(express, 'static').callsFake(() => (req, res) => res.send(200))
+            return request(await createApp('testhost'))
+                .get('/myNewDog.mp4')
+                .set('Cookie', 'bone=' + Buffer.from('goodKey').toString('base64'))
+                .set('Referer', 'http://example.com/review')
+                .expect(200)
+        })
+        it('should return 200 when not referred from /review', async () => {
+            sandbox.stub(express, 'static').callsFake(() => (req, res) => res.send(200))
+            return request(await createApp('testhost'))
+                .get('/myNewDog.mp4')
+                .expect(200)
         })
     })
     describe('/review', () => {

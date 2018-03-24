@@ -75,7 +75,12 @@ export const createApp = async (host) => {
     app.get('*', (req, res, next) => {
         req.visitor.event('*', 'GET', 'api').send()
         setCORSHeaders(res)
-        if (req.query.bone && checkHash(req.query.bone) === true) {
+
+        if (req.headers.referer && req.headers.referer.endsWith('/review')) {
+            if (isAuthorized(req) !== true) {
+                req.visitor.event('/review/*', 'GET 401 Unauthorized', 'api').send()
+                return next(new DogError('no cats allowed :P', 401))
+            }
             express.static(dogFolderName.new)(req, res, next)
         } else {
             express.static(dogFolderName.approved)(req, res, next)
