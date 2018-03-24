@@ -1,8 +1,9 @@
 import fs from 'fs-extra'
 import bcrypt from 'bcryptjs'
 
-const secret = JSON.parse(fs.readFileSync('./secret.json', 'utf8')).secret
+let secret
 
 export function checkHash(password) {
+    if (!secret) secret = JSON.parse(fs.readFileSync('./secret.json', 'utf8')).secret
     return bcrypt.compareSync(password, secret)
 }
