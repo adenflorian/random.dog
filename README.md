@@ -4,12 +4,22 @@
 
 The nodejs code behind [random.dog](https://random.dog)
 
+## Prerequisites
+
+- `node@^8.9.1`
+- `yarn@^1.5.1`
+
 ## Setup
 
 - `git clone`
-- `npm install`
-- `npm start`
+- `yarn`
+- `yarn start`
 - <http://localhost:8080/>
+
+## Tests
+
+- `yarn test`
+- `yarn tdd`
 
 ## Security Setup
 
