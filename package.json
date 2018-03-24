@@ -8,7 +8,7 @@
     "prodstart": "pm2 start process.yml",
     "lint": "eslint .",
     "test": "mocha",
-    "tdd": "mocha --watch --reporter dot",
+    "tdd": "mocha --watch --reporter dot --inspect",
     "clean": "rm -rf lib"
   },
   "dependencies": {
