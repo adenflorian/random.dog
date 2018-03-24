@@ -1,5 +1,7 @@
 # random.dog
 
+[![Build Status](https://travis-ci.org/AdenFlorian/random.dog.svg?branch=master)](https://travis-ci.org/AdenFlorian/random.dog)
+
 The nodejs code behind [random.dog](https://random.dog)
 
 ## Setup
