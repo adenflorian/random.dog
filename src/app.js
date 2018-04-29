@@ -59,9 +59,7 @@ export const createApp = async (host) => {
     }))
 
     app.use((req, res, next) => {
-        log('NEW REQUEST: ' + getDateTime() + ' EST - NYC')
-        log(`requestor ip: ${req.connection.remoteAddress}`)
-        log(`${req.method} ${req.url}`)
+        log(`NEW REQUEST: ${getDateTime()} EST - NYC | ${req.method} ${req.url} ${req.body ? JSON.stringify(req.body) : ''}`)
         next()
     })
 
@@ -174,16 +172,21 @@ export const createApp = async (host) => {
             return next(new DogError('bad dogName', 400))
         }
 
-        if (body.action === 'reject') {
-            adoptOrReject(rejectDog, dogName, res, 'dog rejected', visitor)
-        } else {
-            adoptOrReject(adoptDog, dogName, res, 'dog adopted', visitor)
+        try {
+            if (body.action === 'reject') {
+                await adoptOrReject(rejectDog, dogName, res, 'dog rejected', visitor)
+            } else {
+                await adoptOrReject(adoptDog, dogName, res, 'dog adopted', visitor)
+            }
+        } catch (error) {
+            return next(error)
         }
 
         async function adoptOrReject(fn, dogName, res, message, visitor) {
             await fn(dogName)
             updateCache()
             visitor.event('review', message, 'api').send()
+            log(`${message}: ${dogName}`)
             res.status(200).send(message)
         }
     })
