@@ -5,6 +5,7 @@
   "main": "randomdog.js",
   "scripts": {
     "start": "concurrently \"babel src --watch --out-dir lib --copy-files\" \"nodemon -e js,hbs,handlebars ./lib/randomdog.js\"",
+    "build": "babel src --out-dir lib --copy-files",
     "prodstart": "pm2 start process.yml",
     "lint": "eslint .",
     "test": "mocha",
