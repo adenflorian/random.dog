@@ -1,4 +1,4 @@
---require babel-core/register
+--require @babel/register
 --require make-promises-safe
 --require ./test/mocha-hook.js
 --exit
