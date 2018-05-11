@@ -6,8 +6,8 @@ The nodejs code behind [random.dog](https://random.dog)
 
 ## Prerequisites
 
-- `node@^8.9.1`
-- `yarn@^1.5.1`
+- `node@^10.1.0`
+- `yarn@^1.6.0`
 
 ## Setup
 
