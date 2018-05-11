@@ -1,6 +1,6 @@
 {
   "name": "random.dog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The nodejs code behind http://random.dog",
   "main": "randomdog.js",
   "scripts": {
