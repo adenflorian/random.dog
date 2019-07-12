@@ -21,6 +21,7 @@
             "error",
             "single"
         ],
-        "no-var": "error"
+        "no-var": "error",
+        "no-throw-literal": "error"
     }
 }

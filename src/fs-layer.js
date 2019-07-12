@@ -1,5 +1,5 @@
 import fs from 'fs-extra'
-import {DogError} from './dog-error'
+import {BadDogRequest} from './dog-error'
 
 export const dogFolderName = {
     new: 'newdoggos',
@@ -22,16 +22,16 @@ export const getGoodDogs = () => fs.readdir(dogFolderName.approved + '/')
 
 export async function rejectDog(dogName) {
     const rejectDogPath = `./${dogFolderName.new}/${dogName}`
-    
-    if (await fs.exists(rejectDogPath) === false) throw new DogError('dogName no exist', 400)
+
+    if (await fs.exists(rejectDogPath) === false) throw new BadDogRequest('dogName no exist', 400)
 
     await fs.move(rejectDogPath, `./${dogFolderName.reject}/${dogName}`, {overwrite: true})
 }
 
 export async function adoptDog(dogName) {
     const rejectDogPath = `./${dogFolderName.new}/${dogName}`
-    
-    if (await fs.exists(rejectDogPath) === false) throw new DogError('dogName no exist', 400)
+
+    if (await fs.exists(rejectDogPath) === false) throw new BadDogRequest('dogName no exist', 400)
 
     await fs.move(rejectDogPath, `./${dogFolderName.approved}/${dogName}`, {overwrite: true})
 }

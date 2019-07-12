@@ -1,7 +1,7 @@
 import path from 'path'
 import {List} from 'immutable'
 import {randomInt} from './utils'
-import {DogError} from './dog-error'
+import {BadDogRequest} from './dog-error'
 
 export class DogCache extends List {
     constructor(dogs) {
@@ -19,7 +19,7 @@ export class DogCache extends List {
             const ext = path.extname(dog).toLowerCase().substring(1)
             return filters.includes(ext) === false
         })
-        if (filteredDogs.count() === 0) throw new DogError('No dogs left after applying filter :(', 400)
+        if (filteredDogs.count() === 0) throw new BadDogRequest('No dogs left after applying filter :(', 400)
         return new DogCache(filteredDogs)
     }
 }   

@@ -9,7 +9,7 @@ import exphbs from 'express-handlebars'
 import {List} from 'immutable'
 import {checkHash} from './hash-util'
 import {dogFolderName, getDoggoCount, getGoodDogs, getNewDogs, rejectDog, adoptDog} from './fs-layer'
-import {DogError} from './dog-error'
+import {BadDogRequest} from './bad-dog-request'
 import {DogCache} from './DogCache'
 
 let immortalDoggos = 0
@@ -59,7 +59,7 @@ export const createApp = async (host) => {
     }))
 
     app.use((req, res, next) => {
-        log(`NEW REQUEST: ${getDateTime()} EST - NYC | ${req.method} ${req.url} ${req.body ? JSON.stringify(req.body) : ''}`)
+        log(`NEW REQUEST: ${req.method} ${req.url} ${req.body ? JSON.stringify(req.body) : ''}`)
         next()
     })
 
@@ -71,13 +71,14 @@ export const createApp = async (host) => {
 
     // API
     app.get('*', (req, res, next) => {
+        throw new Error('asdf')
         req.visitor.event('*', 'GET', 'api').send()
         setCORSHeaders(res)
 
         if (req.headers.referer && req.headers.referer.endsWith('/review')) {
             if (isAuthorized(req) !== true) {
                 req.visitor.event('/review/*', 'GET 401 Unauthorized', 'api').send()
-                return next(new DogError('no cats allowed :P', 401))
+                return next(new BadDogRequest('no cats allowed :P', 401))
             }
             express.static(dogFolderName.new)(req, res, next)
         } else {
@@ -152,24 +153,24 @@ export const createApp = async (host) => {
 
         if (isAuthorized(req) !== true) {
             visitor.event('review', '401 Unauthorized', 'api').send()
-            return next(new DogError('no cats allowed', 401))
+            return next(new BadDogRequest('no cats allowed', 401))
         }
 
         if (!body) {
             visitor.event('review', '400 missing body', 'api').send()
-            return next(new DogError('missing body', 400))
+            return next(new BadDogRequest('missing body', 400))
         }
 
         const dogName = body.dogName
 
         if (['reject', 'adopt'].includes(body.action) === false) {
             visitor.event('review', '400 bad action', 'api').send()
-            return next(new DogError('bad action', 400))
+            return next(new BadDogRequest('bad action', 400))
         }
 
         if (!dogName || dogName.length < 3) {
             visitor.event('review', '400 bad dogName', 'api').send()
-            return next(new DogError('bad dogName', 400))
+            return next(new BadDogRequest('bad dogName', 400))
         }
 
         try {
@@ -186,7 +187,7 @@ export const createApp = async (host) => {
             await fn(dogName)
             updateCache()
             visitor.event('review', message, 'api').send()
-            log(`${message}: ${dogName}`)
+            log(`adoptOrReject: ${message}: ${dogName}`)
             res.status(200).send(message)
         }
     })
@@ -210,12 +211,12 @@ export const createApp = async (host) => {
         res.render('upload', {dog: newDogs, waitingdogs: newDogs.length})
     })
 
-    app.get('/review', async (req, res) => {
+    app.get('/review', async (req, res, next) => {
         req.visitor.event('review', 'GET', 'api').send()
 
         if (isAuthorized(req) !== true) {
             req.visitor.event('review', 'GET-unauthorized', 'api').send()
-            return res.sendStatus(401)
+            return next(new BadDogRequest('no cats allowed :P', 401))
         }
 
         const newDogs = await getNewDogs()
@@ -245,18 +246,17 @@ export const createApp = async (host) => {
 
     // eslint-disable-next-line no-unused-vars
     app.use(function (err, req, res, next) {
-        if (isDogErrorType400(err)) {
-            return res.status(err.dogErrorType).send(err.message)
+        if (isBadDogRequest(err)) {
+            log(`BadDogRequest[${err.statusCode}]: ${err.message}`)
+            return res.status(err.statusCode).send(err.message)
         } else {
-            console.error(err.stack)
+            logError(err)
             return res.status(500).send('something broke')
         }
     })
 
     return app
 }
-
-
 
 function isAuthorized(req) {
     if (!req.cookies.bone) return false
@@ -267,34 +267,16 @@ function getDogType(doggo) {
     return path.extname(doggo) == '.mp4' || path.extname(doggo) == '.webm' ? 'dogmp4' : 'dogimg'
 }
 
-function isDogErrorType400(err) {
-    return err.dogErrorType && err.dogErrorType >= 400 && err.dogErrorType < 500
-}
-
-function getDateTime() {
-    const date = new Date()
-
-    let hour = date.getHours()
-    hour = (hour < 10 ? '0' : '') + hour
-
-    let min = date.getMinutes()
-    min = (min < 10 ? '0' : '') + min
-
-    let sec = date.getSeconds()
-    sec = (sec < 10 ? '0' : '') + sec
-
-    let year = date.getFullYear()
-
-    let month = date.getMonth() + 1
-    month = (month < 10 ? '0' : '') + month
-
-    let day = date.getDate()
-    day = (day < 10 ? '0' : '') + day
-
-    return year + ':' + month + ':' + day + ':' + hour + ':' + min + ':' + sec
+function isBadDogRequest(err) {
+    return err instanceof BadDogRequest
 }
 
 function log(message) {
     if (process.env.NODE_ENV === 'test') return
-    console.log(message)
+    console.log(`${new Date().toISOString()} | ${message}`)
+}
+
+function logError(err) {
+    if (process.env.NODE_ENV === 'test') return
+    console.error(`${new Date().toISOString()} | ERROR: ${err} | STACK: ${err.stack}`)
 }
