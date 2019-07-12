@@ -33,6 +33,8 @@ The nodejs code behind [random.dog](https://random.dog)
 
 ## API
 
-On the `GET /woof`, `GET /woof.json`, and `GET /doggos` endpoints, you may add a query parameter called `filter` which should have 1 or more file extensions, separated by commas. When hitting any of the above 3 endpoints with the `filter` param, that endpoint will only return dogs that do not have one of the filtered extensions.
+On the `GET /woof`, `GET /woof.json`, and `GET /doggos` endpoints, you may add a query parameter called `filter` which should have 1 or more file extensions, separated by commas. When hitting any of the above 3 endpoints with the `filter` param, that endpoint will only return dogs that do not have one of the filtered extensions. There is also an `include` query param that does the opposite of `filter`.
 
 Example: `GET random.dog/woof?filter=mp4,webm` will only return dogs that do not have an extension of `mp4` or `webm`.
+
+Example: `GET random.dog/woof?include=mp4,webm` will only return dogs that do have an extension of `mp4` or `webm`.
