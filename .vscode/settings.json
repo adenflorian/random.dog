@@ -14,5 +14,7 @@
     "cSpell.words": [
         "doggos",
         "randomdog"
-    ]
+    ],
+    "javascript.implicitProjectConfig.checkJs": false,
+    "javascript.implicitProjectConfig.experimentalDecorators": false
 }

@@ -13,11 +13,11 @@ export class DogCache extends List {
 
     random = () => this.get(randomInt(this.count()))
 
-    applyFilters = (filters) => {
+    applyFilters = (filters, includeMode) => {
         filters = filters.map(filter => filter.toLowerCase())
         const filteredDogs = this.filter(dog => {
             const ext = path.extname(dog).toLowerCase().substring(1)
-            return filters.includes(ext) === false
+            return filters.includes(ext) === includeMode
         })
         if (filteredDogs.count() === 0) throw new DogError('No dogs left after applying filter :(', 400)
         return new DogCache(filteredDogs)

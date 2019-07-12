@@ -108,7 +108,10 @@ export const createApp = async (host) => {
     function getDogsMaybeWithFilter(req) {
         if (req.query.filter) {
             const filters = req.query.filter.split(',')
-            return cache.applyFilters(filters)
+            return cache.applyFilters(filters, false)
+        } else if (req.query.include) {
+            const includes = req.query.include.split(',')
+            return cache.applyFilters(includes, true)
         } else {
             return cache
         }

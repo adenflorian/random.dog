@@ -40,6 +40,17 @@ describe('randomdog', () => {
                     expect(response.text).to.equal('dog.png')
                 })
         })
+        it('should only return jpeg dogs when include is jpg', async () => {
+            // @ts-ignore
+            fsLayer.getGoodDogs.resolves(['testDog.mp4', 'testDog.jpg', 'dog.png'])
+            return request(await createApp('test_host'))
+                .get('/woof?include=jpg')
+                .expect('Content-Type', /text\/html/)
+                .expect(200)
+                .then(response => {
+                    expect(response.text).to.equal('testDog.jpg')
+                })
+        })
     })
     describe('get /woof.json', () => {
         it('should go woof', async () => {
@@ -64,6 +75,17 @@ describe('randomdog', () => {
                     expect(response.body.url).to.equal('test_host/dog.png')
                 })
         })
+        it('should only return jpeg dogs when include is jpg', async () => {
+            // @ts-ignore
+            fsLayer.getGoodDogs.resolves(['testDog.mp4', 'testDog.JPG', 'dog.png'])
+            return request(await createApp('test_host'))
+                .get('/woof.json?include=jpg')
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .then(response => {
+                    expect(response.body.url).to.equal('test_host/testDog.JPG')
+                })
+        })
     })
     describe('get /doggos', () => {
         it('should return a lot of dogs', async () => {
@@ -86,6 +108,17 @@ describe('randomdog', () => {
                 .expect(200)
                 .then(response => {
                     expect(response.body).to.deep.equal(['dogB.png'])
+                })
+        })
+        it('should return included dogs', async () => {
+            // @ts-ignore
+            fsLayer.getGoodDogs.resolves(['dogA.Jpg', 'dogB.png', 'dogB.mp4', 'dogZ.jpg'])
+            return request(await createApp('test_host'))
+                .get('/doggos?include=jpg')
+                .expect('Content-Type', /application\/json/)
+                .expect(200)
+                .then(response => {
+                    expect(response.body).to.deep.equal(['dogA.Jpg', 'dogZ.jpg'])
                 })
         })
     })
