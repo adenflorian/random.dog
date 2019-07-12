@@ -10,5 +10,9 @@
     "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
     "mocha.requires": [
         "babel-register"
+    ],
+    "cSpell.words": [
+        "doggos",
+        "randomdog"
     ]
 }
