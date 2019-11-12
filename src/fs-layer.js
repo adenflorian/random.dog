@@ -35,3 +35,8 @@ export async function adoptDog(dogName) {
 
     await fs.move(rejectDogPath, `./${dogFolderName.approved}/${dogName}`, {overwrite: true})
 }
+
+export async function getDogFileSize(dogName) {
+    const stat = await fs.stat(`./${dogFolderName.approved}/${dogName}`)
+    return stat.size
+}

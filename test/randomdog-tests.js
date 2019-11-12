@@ -12,6 +12,7 @@ describe('randomdog', () => {
         sandbox = sinon.sandbox.create()
         sandbox.stub(fsLayer, 'getGoodDogs').resolves(['testDog.jpg'])
         sandbox.stub(fsLayer, 'adoptDog')
+        sandbox.stub(fsLayer, 'getDogFileSize')
         sandbox.stub(hashUtil, 'checkHash').callsFake(key => key === 'goodKey')
     })
     afterEach(() => {
@@ -56,12 +57,14 @@ describe('randomdog', () => {
         it('should go woof', async () => {
             // @ts-ignore
             fsLayer.getGoodDogs.resolves(['testDog.jpg'])
+            fsLayer.getDogFileSize.resolves(67107)
             return request(await createApp('test_host'))
                 .get('/woof.json')
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .then(response => {
                     expect(response.body.url).to.equal('test_host/testDog.jpg')
+                    expect(response.body.fileSize).to.equal(67107)
                 })
         })
         it('should not return jpeg dogs when filter is jpg', async () => {

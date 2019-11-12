@@ -8,7 +8,8 @@ import uuidV4 from 'uuid/v4'
 import exphbs from 'express-handlebars'
 import {List} from 'immutable'
 import {checkHash} from './hash-util'
-import {dogFolderName, getDoggoCount, getGoodDogs, getNewDogs, rejectDog, adoptDog} from './fs-layer'
+import {dogFolderName, getDoggoCount, getGoodDogs, getNewDogs, getDogFileSize, rejectDog, adoptDog} from './fs-layer'
+
 import {DogError} from './dog-error'
 import {DogCache} from './DogCache'
 
@@ -91,11 +92,14 @@ export const createApp = async (host) => {
         res.status(200).send(getDogsMaybeWithFilter(req).random())
     })
 
-    app.get('/woof.json', (req, res) => {
+    app.get('/woof.json', async (req, res) => {
         req.visitor.event('woof.json', 'GET', 'api').send()
         setCORSHeaders(res)
+        const dogName = getDogsMaybeWithFilter(req).random()
+        const fileSize = await getDogFileSize(dogName)
         res.status(200).json({
-            url: `${host}/${getDogsMaybeWithFilter(req).random()}`
+            fileSize,
+            url: `${host}/${dogName}`
         })
     })
 
