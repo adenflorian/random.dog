@@ -64,7 +64,7 @@ describe('randomdog', () => {
                 .expect(200)
                 .then(response => {
                     expect(response.body.url).to.equal('test_host/testDog.jpg')
-                    expect(response.body.fileSize).to.equal(67107)
+                    expect(response.body.fileSizeBytes).to.equal(67107)
                 })
         })
         it('should not return jpeg dogs when filter is jpg', async () => {

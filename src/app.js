@@ -96,9 +96,9 @@ export const createApp = async (host) => {
         req.visitor.event('woof.json', 'GET', 'api').send()
         setCORSHeaders(res)
         const dogName = getDogsMaybeWithFilter(req).random()
-        const fileSize = await getDogFileSize(dogName)
+        const fileSizeBytes = await getDogFileSize(dogName)
         res.status(200).json({
-            fileSize,
+            fileSizeBytes,
             url: `${host}/${dogName}`
         })
     })
