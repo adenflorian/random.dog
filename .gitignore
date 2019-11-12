@@ -1,7 +1,9 @@
 newdoggos
 *.sh
 *.bat
-img
+img/*
+!img/dog.png
+!img/testDog.jpg
 secret.json
 rejects
 lib
