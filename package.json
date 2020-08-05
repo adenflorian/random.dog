@@ -17,7 +17,7 @@
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
-    "express-fileupload": "^0.4.0",
+    "express-fileupload": "^1.1.9",
     "express-handlebars": "^3.0.0",
     "fs-extra": "^4.0.2",
     "handlebars": "^4.0.10",
